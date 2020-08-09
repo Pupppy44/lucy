@@ -4,8 +4,6 @@ const ytdl = require("ytdl-core");
 const client = new Client();
 
 const Queue = new Map();
-const Banned = [306767358574198786]
-
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setPresence({ activity: { name: `${prefix}help` }, status: 'online' })
@@ -13,13 +11,6 @@ client.on("ready", () => {
 
 client.on("message", async message => {
   const ServerQueue = Queue.get(message.guild.id);
-  var d;
-  for (d in Banned) {
-    if d == message.author.id {
-      message.channel.send('You are banned from using this bot.')
-      return;
-    }
-  }
   
   if (message.content.startsWith(`${prefix}play`)) {
     execute(message, ServerQueue);
