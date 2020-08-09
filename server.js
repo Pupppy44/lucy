@@ -216,8 +216,9 @@ function queue(msg, guild) {
 }
 
 function report(user, message) {
+  const Discord = require('discord.js');
   const Args = message.content.split(" ");
-  const Webhook = new Discord.WebhookClient('506263048449818628', 'CaUwS8djvuspRrfLWlvLvDSEbw1fpYgjkBAcvQWJZgZsPG7jnPVmwpW3nA3xBUfAkxav')
+  const Webhook = new Discord.WebhookClient('506263048449818628', 'CaUwS8djvuspRrfLWlvLvDSEbw1fpYgjkBAcvQWJZgZsPG7jnPVmwpW3nA3xBUfAkxav');
   
   const ReportEmbed = new MessageEmbed()
   .setTitle(`Report from <@!${user.id}>`)
