@@ -53,6 +53,10 @@ client.on("message", async message => {
   if (message.content.startsWith(`${prefix}queue`)) {
     queue(message, message.guild)
   }
+
+if (message.content.startsWith(`${prefix}report`)) {
+report(message.author, message)
+}
   
 });
 
@@ -208,6 +212,19 @@ function queue(msg, guild) {
     msg.channel.send('The queue is currently empty.')
    return;
  }
+  
+}
+
+function report(user, message) {
+  const Args = message.content.split(" ");
+  const Webhook = new Discord.WebhookClient('506263048449818628', 'CaUwS8djvuspRrfLWlvLvDSEbw1fpYgjkBAcvQWJZgZsPG7jnPVmwpW3nA3xBUfAkxav')
+  
+  const ReportEmbed = new MessageEmbed()
+  .setTitle(`Report from <@!${user.id}>`)
+  .setColor(0xFF0000)
+  .setDescription(Args[1])
+  .setTimestamp()
+  Webhook.send(ReportEmbed)
   
 }
 
