@@ -4,7 +4,7 @@ const ytdl = require("ytdl-core");
 const client = new Client();
 
 const Queue = new Map();
-const Banned = {306767358574198786}
+const Banned = [306767358574198786]
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
