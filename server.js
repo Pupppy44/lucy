@@ -215,17 +215,19 @@ function queue(msg, guild) {
   
 }
 
-function report(user, message) {
+async function report(user, message) {
   const Discord = require('discord.js');
   const Args = message.content.split(" ");
+  const ReportMsg = await String(Args.slice(0).join(" "))
   const Webhook = new Discord.WebhookClient('506263048449818628', 'CaUwS8djvuspRrfLWlvLvDSEbw1fpYgjkBAcvQWJZgZsPG7jnPVmwpW3nA3xBUfAkxav');
   
   const ReportEmbed = new MessageEmbed()
-  .setTitle(`Report from <@!${user.id}>`)
+  .setTitle(`Report from ${message.author.tag} - ${user.id}`)
   .setColor(0xFF0000)
-  .setDescription(Args[1])
+  .setDescription(ReportMsg)
   .setTimestamp()
   Webhook.send(ReportEmbed)
+  message.channel.send('<:success:742073883108180018> Your report has been sent.')
   
 }
 
