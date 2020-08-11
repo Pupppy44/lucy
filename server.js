@@ -6,6 +6,7 @@ const client = new Client();
 const Queue = new Map();
 let Cooldown = new Set();
 let PlayCooldown = new Set();
+let ReportCooldown = new Set();
 
 const Commands = ["play", "skip", "stop", "queue"]
 
@@ -140,6 +141,10 @@ CommandCooldown(message.author)
     help(message, prefix)
   }
   
+  if (message.content.startsWith(`${prefix}invite`)) {
+    InviteCommand(message)
+  }
+  
   if (message.content.startsWith(`${prefix}queue`)) {
     const c = CooldownCheck(message.author)
     if (c == true) {
@@ -202,7 +207,12 @@ const voiceChannel = message.member.voice.channel;
         return;
       }
      message.channel.send(`<:search:742479023346548808> Searching for: **${ReportMsg}**`)
-      var video = await youtube(String(ReportMsg),  {limit: 1})
+      try { 
+        var video = await youtube(String(ReportMsg), {limit: 1})
+      } catch 
+      { message.channel.send('<:error:742048687793897534> An error occured when trying to search. Does the query contain a large amount of characters?') 
+       return;  }
+    
       try {
         var e = video.items.filter(a => a.type === 'video')[0].link
       } catch {
@@ -310,7 +320,7 @@ function skip(message, serverQueue) {
   const ServerQueue = Queue.get(message.guild.id);
   try {
   if (!message.member.voice.channel) return message.channel.send(":warning: You must be in a channel to stop music!");
-  if (!serverQueue)
+  if (!serverQueue || !serverQueue.songs[0])
     return message.channel.send(":warning: The queue is currently empty.");
     serverQueue.connection.dispatcher.end();
   message.channel.send('<:success:742073883108180018> **Skipped**')
@@ -318,6 +328,8 @@ function skip(message, serverQueue) {
   } catch(err) {
     message.channel.send('<:error:742048687793897534> An error has occured.')
     console.log(err + " * skip err")
+    serverQueue.voiceChannel.leave();
+    serverQueue.voiceChannel.join();
   }
 }
 
@@ -400,6 +412,11 @@ function queue(msg, guild) {
 }
 
 async function report(user, message) {
+  const cool = CheckReportCooldown(message.author.id);
+  if (cool === true) {
+    message.channel.send(':clock8: You must wait **60** seconds before your last report before using this command.')
+    return;
+  }
   const Discord = require('discord.js');
   const Args = message.content.split(" ");
   if (!Args[1]) {
@@ -416,7 +433,7 @@ async function report(user, message) {
   .setTimestamp()
   Webhook.send(ReportEmbed)
   message.channel.send('<:success:742073883108180018> Your report has been sent.')
-  
+  GiveReportCooldown(message.author.id);
 }
 
 async function setprefix(message, user) {
@@ -431,6 +448,10 @@ async function setprefix(message, user) {
     message.channel.send(`<:error:742048687793897534> Please enter a prefix.`)
     return
   }
+  if (Args[1].length > 3) {
+    message.channel.send('<:error:742048687793897534> Your prefix must be under **3** characters.')
+    return;
+  }
   const p = await db.set(`prefix_${message.guild.id}`, Args[1])
   message.channel.send(`<:success:742073883108180018> Set prefix to **${db.get(`prefix_${message.guild.id}`)}**`)
   
@@ -441,7 +462,7 @@ async function help(message, prefix) {
     const help = new MessageEmbed() 
     .setTitle('Help') 
     .setColor(16777210) 
-    .setDescription(`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information\n\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}ping** - View your ping`)
+    .setDescription(`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information\n\n**${prefix}invite** - Invite Lucy to your server\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}ping** - View your ping`)
     .setTimestamp()
     .setFooter(`${message.author.tag}`, message.author.avatarURL()) 
     message.channel.send(help)
@@ -461,7 +482,8 @@ function CheckQueueLength(guild) {
       return false
     
 } catch {
-} console.log('Error')
+  console.log('Error')
+}
 }
 
 function CooldownCheck(user) {
@@ -535,6 +557,28 @@ async function SongInfo(message) {
   } catch { 
     message.channel.send('<:error:742048687793897534> There is no playing song!') 
   } 
+}
+
+function CheckReportCooldown(id) {
+  if (ReportCooldown.has(id)) {
+    return true
+  }
+}
+
+function GiveReportCooldown(id) {
+  ReportCooldown.add(id)
+    setTimeout(() => {
+    ReportCooldown.delete(id)
+  }, 60000)
+}
+
+function InviteCommand(m) {
+  const InviteEmbed = new MessageEmbed()
+  .setTitle('Invite Lucy')
+  .setColor(16777210)
+  .setDescription('Invite Lucy using this link: **https://discord.com/api/oauth2/authorize?client_id=504430047604506625&permissions=8&scope=bot**')
+  m.channel.send("<:success:742073883108180018> I've sent you the invite link in DMs!")
+  m.author.send(InviteEmbed)
 }
 
 client.login(process.env.SECRET);
