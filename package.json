@@ -16,7 +16,9 @@
     "@discordjs/opus": "^0.3.2",
     "ffmpeg-static": "^4.2.6",
     "quick.db": "^7.1.1",
-    "ytsr": "^0.1.21"
+    "ytsr": "^0.1.21",
+    "opusscript": "^0.0.7",
+    "@ffmpeg-installer/ffmpeg": "^1.0.20"
   },
   "engines": {
     "node": "12.x"
