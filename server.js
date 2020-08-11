@@ -361,12 +361,9 @@ function play(m, guild, song) {
   const dispatcher = serverQueue.connection
     .play(ytdl(song.url), { filter: 'audioonly' })
     .on("finish", () => {
-    serverQueue.voiceChannel.leave();
-    serverQueue.voiceChannel.join();
       serverQueue.songs.shift();
-      play(guild, serverQueue.songs[0]);
-    })
-    .on("error", error => console.error(error));
+      play(m, guild, serverQueue.songs[0]);
+    });
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
     if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
       serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`);
