@@ -324,7 +324,7 @@ function skip(message, serverQueue) {
     return message.channel.send(":warning: The queue is currently empty.");
     serverQueue.connection.dispatcher.end();
   message.channel.send('<:success:742073883108180018> **Skipped**')
-    play(message, message.guild, ServerQueue.songs[1])
+   // play(message, message.guild, ServerQueue.songs[1])
   } catch(err) {
     message.channel.send('<:error:742048687793897534> An error has occured.')
     console.log(err + " * skip err")
