@@ -8,12 +8,12 @@ let Cooldown = new Set();
 let LoopData = new Map();
 let PlayCooldown = new Set();
 let ReportCooldown = new Set();
+let Voting = new Map();
 
 const Commands = ["play", "skip", "stop", "queue"]
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
-  //client.user.setPresence({ activity: { name: '?help' }, status: 'online' })
   client.user.setActivity("?help", { type: "LISTENING"})
   Reboot()
 });
@@ -179,6 +179,15 @@ CommandCooldown(message.author)
   }
 
  if (command === (`${prefix}disconnect`) || command === (`${prefix}leave`)) {
+   try {
+     const sq = Queue.get(message.guild.id)
+     if (sq.songs[0]) {
+       message.channel.send(":warning: You can only disconnect the bot if there's no song playing.")
+       return;
+     }
+   } catch {
+     console.log('err')
+   }
        const c = CooldownCheck(message.author)
     if (c == true) {
       message.channel.send(':clock8: Slow down with the commands.');
@@ -363,7 +372,11 @@ const voiceChannel = message.member.voice.channel;
   };
     ServerQueue.songs.push(song);
     TakePlayCooldown(message.author.id)
-    return message.channel.send(`:thumbsup: **${song.title}** has been added to the queue!`) ;
+      if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
+        message.channel.send(':thumbsup: `' + song.title + '` has been added to the queue!')
+        return;
+      } else { message.channel.send(`:thumbsup: **${song.title}** has been added to the queue!`) 
+              return; }
     } catch(err) {
       TakePlayCooldown(message.author.id)
      if (message.content.search('@everyone') > -1 || message.content.search('@here') > -1) {
@@ -383,7 +396,7 @@ function skip(message, serverQueue) {
     return message.channel.send(":warning: The queue is currently empty.");
     serverQueue.connection.dispatcher.end();
   message.channel.send('<:success:742073883108180018> **Skipped**')
-    play(message, message.guild, ServerQueue.songs[1])
+    //play(message, message.guild, ServerQueue.songs[1])
   } catch(err) {
     message.channel.send('<:error:742048687793897534> An error has occured.')
     console.log(err + " * skip err")
@@ -417,7 +430,16 @@ function play(m, guild, song) {
    serverQueue.textChannel.send('<:error:742048687793897534> The queue must have under **10** songs.')
     return;
   }
+    var kk = false
     var serverLoop = LoopData.get(guild.id)
+    if (!serverQueue.songs[1]) { 
+                if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
+      serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`)
+                  kk = true;
+                } else {serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`); 
+                       kk = true;
+                       }
+    }
   const dispatcher = serverQueue.connection
     .play(ytdl(song.url), { filter: 'audioonly' })
     .on("finish", () => {
@@ -425,42 +447,49 @@ function play(m, guild, song) {
         const serverLoop = LoopData.get(guild.id)
       if (serverLoop.looping === true) {
         play(m, guild, serverQueue.songs[0])
+        
         return;
       }
         } catch {
-      serverQueue.songs.shift();
+     // serverQueue.songs.shift();
       play(m, guild, serverQueue.songs[0]);
           return;
         }
       
-      serverQueue.songs.shift();
+     serverQueue.songs.shift();
     play(m, guild, serverQueue.songs[0])
       return;
     });
     try {
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-    try {
       if (serverLoop.looping === true) {
       //serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`);
       TakePlayCooldown(m.author.id)
         return;
       }
+      if (kk === false) {
           if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
-      serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`);
+      serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`)
       TakePlayCooldown(m.author.id)
       return;
-    } 
-    } catch {
-      if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
-      serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`)
+    } else {
+      serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`)
       return;
-         } else {
-           serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`)
-           return;
-         }
     }
-    serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`)
+      }
+              //  serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`)
+     // return;
+    } catch {
+      //if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
+      //serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`)
+     // return;
+         ///} //else {
+           //serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`)
+           //return;
+        // }
+         //serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`)
       return;
+    }
     //}
   } catch(err) {
     console.log(err)
@@ -472,14 +501,12 @@ function play(m, guild, song) {
   serverQueue.songs.shift();
     return;
   }
-  } catch {
-    console.log('err')
-  }
 }
 
 function queue(msg, guild) {
   const serverQueue = Queue.get(guild.id);
  try {
+   
    let queuetxt = ""
    var x;
    for (x in serverQueue.songs) {
