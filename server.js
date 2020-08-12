@@ -13,7 +13,8 @@ const Commands = ["play", "skip", "stop", "queue"]
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
-  client.user.setPresence({ activity: { name: '?help' }, status: 'online' })
+  //client.user.setPresence({ activity: { name: '?help' }, status: 'online' })
+  client.user.setActivity("?help", { type: "LISTENING"})
   Reboot()
 });
 
@@ -33,6 +34,10 @@ client.on("message", async message => {
     prefix = fetch
   
   const command = message.content.toString().toLowerCase().split(" ")[0]
+  
+  if (command === `${prefix}hi`) {
+    message.channel.send('Hey')
+  }
   
   if (command === `${prefix}loop`) {
     try {
@@ -76,7 +81,7 @@ const Song = ServerQueue.songs[0]
   }
 
   
-  /*if (message.content.startsWith(`${prefix}banlol`)) {
+  /*if (message.content.startsWith(`${prefix}ban`)) {
     const Args = message.content.split(" ")
     const Reason = await String(Args.slice(2).join(" "))
     if (!message.author.id == '306767358574198786') { message.channel.send('<:error:742048687793897534> You cannot use this command.'); return; }
@@ -125,6 +130,11 @@ message.channel.send(':clock8: Slow down with the commands.');
 return;
 }
 CommandCooldown(message.author)
+       const tbe = {
+      looping: false
+    }
+       LoopData.set(message.guild.id, tbe)
+       
     skip(message, ServerQueue);
     return;
   }
@@ -137,6 +147,10 @@ message.channel.send(':clock8: Slow down with the commands.');
 return;
 }
 CommandCooldown(message.author)
+               const tbe = {
+      looping: false
+    }
+       LoopData.set(message.guild.id, tbe)
     stop(message, ServerQueue);
     return;
   }
