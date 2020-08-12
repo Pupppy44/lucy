@@ -76,7 +76,7 @@ const Song = ServerQueue.songs[0]
   }
 
   
-  /*if (message.content.startsWith(`${prefix}ban`)) {
+  /*if (message.content.startsWith(`${prefix}banlol`)) {
     const Args = message.content.split(" ")
     const Reason = await String(Args.slice(2).join(" "))
     if (!message.author.id == '306767358574198786') { message.channel.send('<:error:742048687793897534> You cannot use this command.'); return; }
