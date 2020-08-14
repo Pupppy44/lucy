@@ -9,16 +9,18 @@ let LoopData = new Map();
 let PlayCooldown = new Set();
 let ReportCooldown = new Set();
 let Voting = new Map();
-
-const Commands = ["play", "skip", "stop", "queue"]
+let StopVoting = new Map();
+let dmc = new Set();
+let dmc2 = new Set();
+let dmc3 = new Set();
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
-  client.user.setActivity("?help", { type: "LISTENING"})
-  Reboot()
+  client.user.setActivity(`${client.users.cache.size} users • ?help`, { type: "LISTENING"})
 });
 
 client.on("message", async message => {
+  if(message.author.bot) return;
   
   let prefix = "?"
   if (message.channel.type === "dm")  {
@@ -35,9 +37,6 @@ client.on("message", async message => {
   
   const command = message.content.toString().toLowerCase().split(" ")[0]
   
-  if (command === `${prefix}hi`) {
-    message.channel.send('Hey')
-  }
   
   if (command === `${prefix}loop`) {
     try {
@@ -50,6 +49,12 @@ client.on("message", async message => {
     const serverLoop = LoopData.get(message.guild.id)
     const tbe = {
       looping: true
+    }
+    if (LoopData.get(message.guild.id)) {
+      if (LoopData.get(message.guild.id).looping === true) {
+        message.channel.send(`<:error:742048687793897534> The playing song is already looping!`)
+        return;
+      }
     }
     LoopData.set(message.guild.id, tbe)
      if (String(Song.title).search('@everyone') > -1 || String(Song.title).search('@here') > -1) {
@@ -80,6 +85,12 @@ const Song = ServerQueue.songs[0]
        message.channel.send(`<:success:742073883108180018> Unlooped **${Song.title}**`)
   }
 
+  
+  if (command === `${prefix}update`) {
+    if (!message.author.id === "306767358574198786") return message.channel.send('Not enough perms');
+    client.user.setActivity(`${client.users.cache.size} users • ?help`, { type: "LISTENING"})
+    message.channel.send(`<a:checkmark:743818721054949477> **Updated status**\n\n**Users:** ${client.users.cache.size}\n**Guilds:** ${client.guilds.cache.size}\n**Ping:** ${Date.now() - message.createdTimestamp + " ms"}`)
+  }
   
   /*if (message.content.startsWith(`${prefix}ban`)) {
     const Args = message.content.split(" ")
@@ -147,6 +158,7 @@ message.channel.send(':clock8: Slow down with the commands.');
 return;
 }
 CommandCooldown(message.author)
+        dmcf(message)
                const tbe = {
       looping: false
     }
@@ -173,14 +185,20 @@ CommandCooldown(message.author)
       return;
     }
     CommandCooldown(message.author)
+      dmcf(message)
     if (!message.member.voice.channel) return message.channel.send(":warning: You're currently not in a voice channel.");
       const join = await message.member.voice.channel.join();
       message.channel.send(`<:success:742073883108180018> Connected to **${message.member.voice.channel.name}**`)
+      if (ServerQueue.songs[0]) {
+        ServerQueue.connection = join
+        //message.channel.send('<:warning:743466779249999884> Do not force disconnect the bot, use `disconnect`')
+      }
   }
 
  if (command === (`${prefix}disconnect`) || command === (`${prefix}leave`)) {
    try {
-     const sq = Queue.get(message.guild.id)
+     var sq = Queue.get(message.guild.id)
+     if (!message.member.voice.channel) return message.channel.send(":warning: You must be in a channel to disconnect the bot!"); 
      if (sq.songs[0]) {
        message.channel.send(":warning: You can only disconnect the bot if there's no song playing.")
        return;
@@ -194,7 +212,7 @@ CommandCooldown(message.author)
       return;
     }
     CommandCooldown(message.author)
-    if (!message.member.voice.channel) return message.channel.send(":warning: You must be in a channel to disconnect the bot!");
+   dmcf(message)
     const leave = await message.member.voice.channel.leave();
     message.channel.send(`<:success:742073883108180018> Disconnected from **${message.member.voice.channel.name}**`)
   }
@@ -320,6 +338,8 @@ const voiceChannel = message.member.voice.channel;
    message.channel.send('<:error:742048687793897534> The queue must have under **10** songs.')
     return;
   }
+  dmcf(message)
+  dmc3.add(message.guild.id)
   
   if (!ServerQueue) {
     const queueContruct = {
@@ -342,7 +362,7 @@ const voiceChannel = message.member.voice.channel;
       songInfo = await ytdl.getInfo(e)
     }
     try {
-  const song = {
+  var song = {
     title: songInfo.videoDetails.title,
     url: songInfo.videoDetails.video_url,
     length: songInfo.videoDetails.lengthSeconds,
@@ -353,15 +373,17 @@ const voiceChannel = message.member.voice.channel;
       var connection = await voiceChannel.join();
       queueContruct.connection = connection;
       play(message, message.guild, queueContruct.songs[0]);
+      dmc3.delete(message.guild.id)
     } catch (err) {
+      console.log(err)
       TakePlayCooldown(message.author.id)
       if(args[1] === "@everyone" || args[1] == "@here") {
       message.channel.send(`<:error:742048687793897534> An error occured when trying to play...nice try.`)
       } else {
-          message.channel.send(`<:error:742048687793897534> An error occured when trying to play **${args[1]}**.`)
+          message.channel.send(`<:error:742048687793897534> An error occured when trying to play **${song.title}**, please try again.`)
       }
       Queue.delete(message.guild.id);
-      return message.channel.send(err);
+      return console.log(err);
     }
   } else {
     try {
@@ -388,40 +410,151 @@ const voiceChannel = message.member.voice.channel;
   }
 }
 
-function skip(message, serverQueue) {
+async function skip(message, serverQueue) {
   const ServerQueue = Queue.get(message.guild.id);
+  const VotingMap = Voting.get(message.guild.id)
+  if (!VotingMap) {
+    const lol = {
+      voters: []
+    }
+    Voting.set(message.guild.id, lol)
+  }
   try {
-  if (!message.member.voice.channel) return message.channel.send(":warning: You must be in a channel to stop music!");
+const VotingMap = Voting.get(message.guild.id)
+const ServerQueue = Queue.get(message.guild.id);
   if (!serverQueue || !serverQueue.songs[0])
     return message.channel.send(":warning: The queue is currently empty.");
-    serverQueue.connection.dispatcher.end();
-  message.channel.send('<:success:742073883108180018> **Skipped**')
-    //play(message, message.guild, ServerQueue.songs[1])
+      if (!message.member.voice.channel) return message.channel.send(`:warning: You must be in **${serverQueue.voiceChannel.name}** to skip music!`);
+  if (message.member.voice.channel.name == serverQueue.voiceChannel.name) { 
+    var x;
+for (x in VotingMap.voters)  {
+if (VotingMap.voters[x] == message.author.id) {
+          var count = 0;
+    var x;
+for (x in VotingMap.voters)  {
+  count += 1
+}
+      if (count >= (Number(serverQueue.voiceChannel.members.size) - 1)) {
+        try {
+      serverQueue.connection.dispatcher.end();
+      message.channel.send('<:success:742073883108180018> **Skipped**')
+      Voting.delete(message.guild.id)
+        return;
+        } catch {
+          
+        }
+    }
+  message.channel.send('<:error:742048687793897534> You already voted!')
+  return;
+}
+}
+} else {
+  message.channel.send(`:warning: You must be in **${serverQueue.voiceChannel.name}** to stop music!`);
+  return;
+}
+  VotingMap.voters.push(message.author.id)
+        var count = 0;
+    var x;
+for (x in VotingMap.voters)  {
+  count += 1
+}
+  message.channel.send('<:success:742073883108180018> **Voted to skip** `[' + count + '/' + (Number(serverQueue.voiceChannel.members.size) - 1) + ']`' )
+    if (count >= (Number(serverQueue.voiceChannel.members.size) - 1)) {
+      serverQueue.connection.dispatcher.end();
+      message.channel.send('<:success:742073883108180018> **Skipped**')
+      Voting.delete(message.guild.id)
+      StopVoting.delete(message.guild.id)
+    }
   } catch(err) {
-    message.channel.send('<:error:742048687793897534> An error has occured.')
-    console.log(err + " * skip err")
-    serverQueue.voiceChannel.leave();
-    serverQueue.voiceChannel.join();
+try {
+ // Queue.delete(message.guild.id)
+message.channel.send('<:success:742073883108180018> **Skipped**\n<:warning:743466779249999884> Do not force disconnect the bot, use `disconnect`')
+        Voting.delete(message.guild.id)
+      StopVoting.delete(message.guild.id)
+  const con = await serverQueue.voiceChannel.join();
+  serverQueue.connection = con
+  play(message, message.guild, serverQueue.songs[1], true)
+} catch {
+  message.channel.send('<:error:742048687793897534> An error has occured.')
+}
   }
 }
 
 function stop(message, serverQueue) {
-  if (!message.member.voice.channel) return message.channel.send(":warning: You must be in a channel to stop music!");
-  try {
-   serverQueue.songs = [];
-   serverQueue.connection.dispatcher.end();
-  } catch {
-    message.channel.send("<:error:742048687793897534> The queue is empty.")
-    return;
+  const ServerQueue = Queue.get(message.guild.id);
+  const VotingMap = StopVoting.get(message.guild.id)
+  if (!VotingMap) {
+    const lol = {
+      voters: []
+    }
+    StopVoting.set(message.guild.id, lol)
   }
-message.channel.send("<:success:742073883108180018> **Stopped**")
+  try {
+const VotingMap = StopVoting.get(message.guild.id)
+const ServerQueue = Queue.get(message.guild.id);
+  if (!serverQueue || !serverQueue.songs[0])
+    return message.channel.send(":warning: The queue is currently empty.");
+      if (!message.member.voice.channel) return message.channel.send(`:warning: You must be in **${serverQueue.voiceChannel.name}** to stop music!`);
+  if (message.member.voice.channel.name == serverQueue.voiceChannel.name) { 
+    var x;
+for (x in VotingMap.voters)  {
+if (VotingMap.voters[x] == message.author.id) {
+          var count = 0;
+    var x;
+for (x in VotingMap.voters)  {
+  count += 1
 }
-
-function play(m, guild, song) {
+      if (count >= (Number(serverQueue.voiceChannel.members.size) - 1)) {
+        serverQueue.songs = [];
+      serverQueue.connection.dispatcher.end();
+      message.channel.send('<:success:742073883108180018> **Stopped**')
+      StopVoting.delete(message.guild.id)
+        return;
+    }
+  message.channel.send('<:error:742048687793897534> You already voted!')
+  return;
+}
+}
+} else {
+  message.channel.send(`:warning: You must be in **${serverQueue.voiceChannel.name}** to stop music!`);
+  return;
+}
+  VotingMap.voters.push(message.author.id)
+        var count = 0;
+    var x;
+for (x in VotingMap.voters)  {
+  count += 1
+}
+  message.channel.send('<:success:742073883108180018> **Voted to stop queue** `[' + count + '/' + (Number(serverQueue.voiceChannel.members.size) - 1) + ']`' )
+    if (count >= (Number(serverQueue.voiceChannel.members.size) - 1)) {
+              serverQueue.songs = [];
+      serverQueue.connection.dispatcher.end();
+      message.channel.send('<:success:742073883108180018> **Stopped**')
+      StopVoting.delete(message.guild.id)
+    }
+  } catch(err) {
+   try {
+  Queue.delete(message.guild.id)
+message.channel.send('<:success:742073883108180018> **Stopped**\n<:warning:743466779249999884> Do not force disconnect the bot, use `disconnect`')
+        Voting.delete(message.guild.id)
+      StopVoting.delete(message.guild.id)
+} catch {
+  message.channel.send('<:error:742048687793897534> An error has occured.')
+}
+}
+}
+function play(m, guild, song, b) {
   const serverQueue = Queue.get(guild.id)
   if (!song) {
     Queue.delete(guild.id);
     return;
+  }
+  
+  if (b === true) {
+  
+    
+   // move(serverQueue.songs, 1, 0)
+    serverQueue.songs.shift();
   }
   
   try {
@@ -432,7 +565,19 @@ function play(m, guild, song) {
   }
     var kk = false
     var serverLoop = LoopData.get(guild.id)
+    try {
+       const lmao = serverLoop.looping
+    }catch{
+             const tbe = {
+      looping: false
+    }
+       LoopData.set(m.guild.id, tbe)
+    }
+    dmcf(m)
+    const serverQueue = Queue.get(m.guild.id)
     if (!serverQueue.songs[1]) { 
+      var serverLoop = LoopData.get(guild.id)
+      if (serverLoop.looping === false) {
                 if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
       serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`)
                   kk = true;
@@ -440,9 +585,18 @@ function play(m, guild, song) {
                        kk = true;
                        }
     }
-  const dispatcher = serverQueue.connection
+    }
+    const dispatcher = serverQueue.connection
     .play(ytdl(song.url), { filter: 'audioonly' })
     .on("finish", () => {
+      const vdlol = Voting.get(guild.id)
+      if (vdlol) {
+        Voting.delete(guild.id)
+      }
+            const avdlol = StopVoting.get(guild.id)
+      if (avdlol) {
+        StopVoting.delete(guild.id)
+      }
       try {
         const serverLoop = LoopData.get(guild.id)
       if (serverLoop.looping === true) {
@@ -463,7 +617,6 @@ function play(m, guild, song) {
     try {
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
       if (serverLoop.looping === true) {
-      //serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`);
       TakePlayCooldown(m.author.id)
         return;
       }
@@ -493,6 +646,7 @@ function play(m, guild, song) {
     //}
   } catch(err) {
     console.log(err)
+    const serverQueue = Queue.get(m.guild.id)
         if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
       serverQueue.textChannel.send(`<:error:742048687793897534>  An error occured when trying to play the requested song.`);
     } else {
@@ -589,7 +743,7 @@ async function help(message, prefix) {
 
 function CheckQueueLength(guild) {
   try {
-  const serverQueue = Queue.get(guild.id);
+  var serverQueue = Queue.get(guild.id);
   let count = 0
   var x;
   for (x in serverQueue.songs) {
@@ -600,8 +754,7 @@ function CheckQueueLength(guild) {
     } else 
       return false
     
-} catch {
-  console.log('Error')
+} catch(e) {
 }
 }
 
@@ -650,18 +803,6 @@ async function SelfRecover(message, guidid) {
   const leave = await message.member.voice.channel.leave();
 }
 
-async function Reboot() {
-  const Discord = require('discord.js');
-  const Webhook = new Discord.WebhookClient('742486346576429095', '77EQ6Iyd7wU3JQCRmqzbhi4Oq-5MeQB-R-Ai5vo_Jm0PWWjhB2uWkRQbqVWcg2D5LdjI');
-  const Number = await db.fetch(`reboots_1`)
-  const Embed = new MessageEmbed()
-  .setTitle(`Reboot #${Number}`)
-  .setColor(0x00FF00)
-  .setDescription('Bot has rebooted.')
-  Webhook.send(Embed)
-  const AddNumber = await db.set(`reboots_1`, Number + 1)
-}
-
 async function SongInfo(message) { 
   try { 
     const serverQueue = Queue.get(message.guild.id); 
@@ -699,5 +840,13 @@ function InviteCommand(m) {
   m.channel.send("<:success:742073883108180018> I've sent you the invite link in DMs!")
   m.author.send(InviteEmbed)
 }
+
+
+function dmcf(message) {
+  dmc2.add(message.guild.id)
+        setTimeout(() => {
+                dmc2.delete(message.guild.id) }, 4000)
+}
+
 
 client.login(process.env.SECRET);
