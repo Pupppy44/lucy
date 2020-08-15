@@ -23,7 +23,7 @@ client.on("message", async message => {
   if(message.author.bot) return;
   
   let prefix = "?"
-  if (message.channel.type === "dm")  {
+  if (message.channel.type === "dm" && message.content.startsWith('?') && String(message.content).length > 1)  {
     message.author.send("<:error:742048687793897534> You can't use commands in DMs.")
     return;
   }
@@ -37,8 +37,25 @@ client.on("message", async message => {
   
   const command = message.content.toString().toLowerCase().split(" ")[0]
   
+  if (command === `${prefix}removethebowspleaseandthankyoulolezpzlemonuhhidkhowtospellokripsadface`) {
+    if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
+      message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
+      return;
+    }
+    if (!ServerQueue) return message.channel.send("<:error:742048687793897534> There's no song(s) in the queue.");
+    if (!ServerQueue.songs[1]) return message.channel.send("<:error:742048687793897534> There's no song(s) in the queue.");
+    Remove(message)
+  }
+  
   
   if (command === `${prefix}loop`) {
+    const c = CooldownCheck(message.author)
+if (c == true) {
+message.channel.send(':clock8: Slow down with the commands.');
+return;
+}
+if (PlayCooldown.has(message.author.id)) {return;}
+CommandCooldown(message.author)
     try {
       const Song = ServerQueue.songs[0]
     } catch {
@@ -56,12 +73,19 @@ client.on("message", async message => {
         return;
       }
     }
+    if (!message.member.voice.channel) return message.channel.send(`<:warning:743466779249999884> You must be in **${ServerQueue.voiceChannel.name}** to loop a song!`);
+    if (message.member.voice.channel.name === ServerQueue.voiceChannel.name) {
     LoopData.set(message.guild.id, tbe)
      if (String(Song.title).search('@everyone') > -1 || String(Song.title).search('@here') > -1) {
        message.channel.send(`<:success:742073883108180018> Looping playing song`)
        return;
      }
     message.channel.send('<:success:742073883108180018> Looping **' + Song.title + '**')
+    } else {
+      message.channel.send(`<:warning:743466779249999884> You must be in **${ServerQueue.voiceChannel.name}** to loop a song!`);
+      return;
+    }
+                                                                                 
   }
   
     if (command === `${prefix}unloop`) {
@@ -76,6 +100,8 @@ client.on("message", async message => {
       const tbe = {
       looping: false
     }
+      if (!message.member.voice.channel) return message.channel.send(`<:warning:743466779249999884> You must be in **${ServerQueue.voiceChannel.name}** to loop a song!`);
+    if (message.member.voice.channel.name === ServerQueue.voiceChannel.name) {
 const Song = ServerQueue.songs[0]
     LoopData.set(message.guild.id, tbe)
       if (String(Song.title).search('@everyone') > -1 || String(Song.title).search('@here') > -1) {
@@ -83,6 +109,9 @@ const Song = ServerQueue.songs[0]
         return;
       }
        message.channel.send(`<:success:742073883108180018> Unlooped **${Song.title}**`)
+    } else {
+      message.channel.send(`<:warning:743466779249999884> You must be in **${ServerQueue.voiceChannel.name}** to unloop a song!`);
+    }
   }
 
   
@@ -289,7 +318,7 @@ const voiceChannel = message.member.voice.channel;
     const ReportMsg = await String(args.slice(1).join(" "))
     const youtube = require('ytsr')
       if (ReportMsg.search('@everyone') > -1 || ReportMsg.search('@here') > -1) {
-        message.channel.send(`<:search:742479023346548808> Searching for...man I'm tired of this.`)
+        message.channel.send(`<:warning:743466779249999884> Your search query contains **blacklisted** text.`)
         return;
       }
      message.channel.send(`<:search:742479023346548808> Searching for: **${ReportMsg}**`)
@@ -366,7 +395,7 @@ const voiceChannel = message.member.voice.channel;
     title: songInfo.videoDetails.title,
     url: songInfo.videoDetails.video_url,
     length: songInfo.videoDetails.lengthSeconds,
-    thumbnail: songInfo.videoDetails.thumbnail.thumbnails
+    author: songInfo.videoDetails.author.name
   };
       
       queueContruct.songs.push(song);
@@ -390,7 +419,8 @@ const voiceChannel = message.member.voice.channel;
   const song = {
     title: songInfo.videoDetails.title,
     url: songInfo.videoDetails.video_url,
-    length: songInfo.videoDetails.lengthSeconds
+    length: songInfo.videoDetails.lengthSeconds,
+    author: songInfo.videoDetails.author.name
   };
     ServerQueue.songs.push(song);
     TakePlayCooldown(message.author.id)
@@ -735,7 +765,8 @@ async function help(message, prefix) {
     const help = new MessageEmbed() 
     .setTitle('Help') 
     .setColor(16777210) 
-    .setDescription(`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}loop** - Loops the playing song\n**${prefix}unloop** - Unloops the playing song\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information\n\n**${prefix}invite** - Invite Lucy to your server\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}ping** - View your ping`)
+    .addField('General Commands',`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}loop** - Loops the playing song\n**${prefix}unloop** - Unloops the playing song\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information`)
+    .addField('Miscellaneous Commands', `**${prefix}invite** - Invite Lucy to your server\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}ping** - View your ping`)
     .setTimestamp()
     .setFooter(`${message.author.tag}`, message.author.avatarURL()) 
     message.channel.send(help)
@@ -809,13 +840,14 @@ async function SongInfo(message) {
     const InfoEmbed = new MessageEmbed() 
     .setTitle('Song Information') 
     .setColor(16777210) 
-    .setDescription(`**Title:** ${serverQueue.songs[0].title}\n**Url:** ${serverQueue.songs[0].url}\n**Length:** ${serverQueue.songs[0].length} seconds`) 
+    .setDescription(`**Title:** ${serverQueue.songs[0].title}\n**Author:** ${serverQueue.songs[0].author}\n**Url:** ${serverQueue.songs[0].url}\n**Length:** ${serverQueue.songs[0].length} seconds`) 
     .setThumbnail(`https://i.ytimg.com/vi/${serverQueue.songs[0].url.substring(32)}/hqdefault.jpg`)
-     .setTimestamp()
+    .setTimestamp()
     .setFooter(`${message.author.tag}`, message.author.avatarURL()) 
     message.channel.send(InfoEmbed) 
-  } catch { 
+  } catch(er) { 
     message.channel.send('<:error:742048687793897534> There is no playing song!') 
+    console.log(er)
   } 
 }
 
@@ -832,13 +864,29 @@ function GiveReportCooldown(id) {
   }, 60000)
 }
 
-function InviteCommand(m) {
+function InviteCommand(message) {
   const InviteEmbed = new MessageEmbed()
   .setTitle('Invite Lucy')
   .setColor(16777210)
   .setDescription('Invite Lucy using this link: **https://discord.com/api/oauth2/authorize?client_id=504430047604506625&permissions=8&scope=bot**')
-  m.channel.send("<:success:742073883108180018> I've sent you the invite link in DMs!")
-  m.author.send(InviteEmbed)
+  message.channel.send("<:info:743925539307257939> If you'd like me to DM you the invite link, respond with **yes**").then(() => {
+	const filter = m => message.author.id === m.author.id;
+
+	message.channel.awaitMessages(filter, { time: 10000, max: 1, errors: ['time'] })
+		.then(messages => {
+    if (messages.first().author.id === message.author.id){ 
+      if (String(messages.first().content).toLowerCase() == 'yes') {
+			message.channel.send(`<:success:742073883108180018> I've sent you the invite link in DMs!`);
+      message.author.send(InviteEmbed)
+      } else {
+        message.channel.send(`:thumbsup: Understandable, have a nice day.`);
+      }
+    }
+		})
+		.catch(() => {
+    message.channel.send(`:thumbsup: Understandable, have a nice day.`);
+		});
+});
 }
 
 
@@ -846,6 +894,27 @@ function dmcf(message) {
   dmc2.add(message.guild.id)
         setTimeout(() => {
                 dmc2.delete(message.guild.id) }, 4000)
+}
+
+function Remove(message) {
+  const ServerQueue = Queue.get(message.guild.id)
+  const Args = message.content.split(" ")
+  if (!Args[1]) return message.channel.send('<:error:742048687793897534> Please provide a number.');
+  if (isNaN(Number(Args[1]))) return message.channel.send('<:error:742048687793897534> **Invalid number**');
+  const Num = Number(Args[1])
+  if (Num === 0) return message.channel.send('<:error:742048687793897534> You cannot remove the playing song!');
+  if (!ServerQueue.songs[Num]) return message.channel.send(`<:warning:743466779249999884> There is no song in **#${Num}** of the queue.`);
+  try {
+    const Name = ServerQueue.songs[Num].title
+    ServerQueue.songs.splice(Num, Num)
+    if (String(Name).search('@everyone') > -1 || String(Name).search('@here') > -1) {
+    message.channel.send('<:success:742073883108180018> Removed `' + Name + '` from the queue.');
+    } else {
+      message.channel.send(`<:success:742073883108180018> Removed **${Name}** from the queue.`);
+    }
+  } catch {
+    message.channel.send('<:error:742048687793897534> Uh oh, looks like an error occured. If this keeps happening, contact support.')
+  }
 }
 
 
