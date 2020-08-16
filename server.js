@@ -116,9 +116,19 @@ const Song = ServerQueue.songs[0]
 
   
   if (command === `${prefix}update`) {
-    if (!message.author.id === "306767358574198786") return message.channel.send('Not enough perms');
+    if (!message.author.id === "306767358574198786") return;
     client.user.setActivity(`${client.users.cache.size} users • ?help`, { type: "LISTENING"})
     message.channel.send(`<a:checkmark:743818721054949477> **Updated status**\n\n**Users:** ${client.users.cache.size}\n**Guilds:** ${client.guilds.cache.size}\n**Ping:** ${Date.now() - message.createdTimestamp + " ms"}`)
+  }	
+
+if (command === `${prefix}status`) {
+    if (!message.author.id === "306767358574198786") return;
+    const args = message.content.split(" ")
+    if (!args[1]) return message.channel.send('Enter type');
+    if (!args[2]) return message.channel.send('Enter status');
+    const msg = await String(args.slice(2).join(" "))
+    client.user.setActivity(msg, { type: String(args[1])})
+    message.channel.send(`<a:checkmark:743818721054949477> **Updated status**`)
   }
   
   /*if (message.content.startsWith(`${prefix}ban`)) {
