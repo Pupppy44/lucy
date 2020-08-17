@@ -16,7 +16,7 @@ let dmc3 = new Set();
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
-  client.user.setActivity(`${client.users.cache.size} users • ?help`, { type: "LISTENING"})
+  client.user.setActivity(`${client.users.cache.size} users | ?help`, { type: "LISTENING"})
 });
 
 client.on("message", async message => {
@@ -37,14 +37,111 @@ client.on("message", async message => {
   
   const command = message.content.toString().toLowerCase().split(" ")[0]
   
-  if (command === `${prefix}removethebowspleaseandthankyoulolezpzlemonuhhidkhowtospellokripsadface`) {
+  if (command === `${prefix}clear`) {
+     const c = CooldownCheck(message.author)
+if (c == true) {
+message.channel.send(':clock8: Slow down with the commands.');
+return;
+}
+if (PlayCooldown.has(message.author.id)) {return;}
+CommandCooldown(message.author)
+    if (message.member.roles.cache.some(role => role.name === 'DJ')) { 
+      if (!message.member.voice.channel) return message.channel.send("<:warning:743466779249999884> You must be in a voice channel to clear the queue!");
+    if (!ServerQueue) return message.channel.send("<:error:742048687793897534> There's no song(s) in the queue.");
+    if (!ServerQueue.songs[0]) return message.channel.send("<:error:742048687793897534> There's no song(s) in the queue.");
+    if (message.member.voice.channel === ServerQueue.voiceChannel) {
+      Clear(message);
+      return;
+    } else {
+      message.channel.send(`<:warning:743466779249999884> You must be in **${ServerQueue.voiceChannel.name}** to clear the queue!`);
+      return;
+    }
+  
+  } else {
+    message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
+    return;
+  }
+  }
+  
+  if (command === `${prefix}shift`) {
+     const c = CooldownCheck(message.author)
+if (c == true) {
+message.channel.send(':clock8: Slow down with the commands.');
+return;
+}
+if (PlayCooldown.has(message.author.id)) {return;}
+CommandCooldown(message.author)
+    if (message.member.roles.cache.some(role => role.name === 'DJ')) { 
+    if (!message.member.voice.channel) return message.channel.send("<:warning:743466779249999884> You must be in a voice channel to force skip!");
+    if (!ServerQueue) return message.channel.send("<:error:742048687793897534> No song is playing!");
+    if (!ServerQueue.songs[0]) return message.channel.send("<:error:742048687793897534> No song is playing!");
+    if (message.member.voice.channel === ServerQueue.voiceChannel) {
+      Shift(message)
+    } else {
+      message.channel.send(`<:warning:743466779249999884> You must be in **${ServerQueue.voiceChannel.name}** to force skip!`);
+    }
+      } else {
+              message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
+      return;
+      }
+  }
+  
+     if (command === `${prefix}status`) {
+    if (message.author.id === '306767358574198786') {
+    const args = message.content.split(" ")
+    if (!args[1]) return message.channel.send('Enter type');
+    if (!args[2]) return message.channel.send('Enter status');
+    const msg = await String(args.slice(2).join(" "))
+    client.user.setActivity(msg, { type: String(args[1])})
+    message.channel.send(`<a:checkmark:743818721054949477> **Updated status**`)
+  } else {
+    console.log('No');
+  }
+     }
+  
+  
+ if (command === `${prefix}volume`) {
+       const c = CooldownCheck(message.author)
+if (c == true) {
+message.channel.send(':clock8: Slow down with the commands.');
+return;
+}
+if (PlayCooldown.has(message.author.id)) {return;}
+CommandCooldown(message.author)
     if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
       message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
       return;
     }
+    if (!message.member.voice.channel) return message.channel.send("<:warning:743466779249999884> You must be in a voice channel to configure the volume!");
+    if (!ServerQueue) return message.channel.send("<:error:742048687793897534> There's no song playing.");
+    if (!ServerQueue.songs[0]) return message.channel.send("<:error:742048687793897534> There's no song playing.");
+    if (message.member.voice.channel === ServerQueue.voiceChannel) {
+      Volume(message)
+    } else {
+      message.channel.send(`<:warning:743466779249999884> You must be in **${ServerQueue.voiceChannel.name}** to configure the volume!`);
+    }
+  }
+  
+  if (command === `${prefix}remove`) {
+        const c = CooldownCheck(message.author)
+if (c == true) {
+message.channel.send(':clock8: Slow down with the commands.');
+return;
+}
+if (PlayCooldown.has(message.author.id)) {return;}
+CommandCooldown(message.author)
+    if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
+      message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
+      return;
+    }
+    if (!message.member.voice.channel) return message.channel.send("<:warning:743466779249999884> You must be in a voice channel to remove songs from the queue!");
     if (!ServerQueue) return message.channel.send("<:error:742048687793897534> There's no song(s) in the queue.");
     if (!ServerQueue.songs[1]) return message.channel.send("<:error:742048687793897534> There's no song(s) in the queue.");
-    Remove(message)
+    if (message.member.voice.channel === ServerQueue.voiceChannel) {
+      Remove(message)
+    } else {
+      message.channel.send(`<:warning:743466779249999884> You must be in **${ServerQueue.voiceChannel.name}** to remove songs from the queue!`);
+    }
   }
   
   
@@ -56,6 +153,10 @@ return;
 }
 if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
+        if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
+      message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
+      return;
+    }
     try {
       const Song = ServerQueue.songs[0]
     } catch {
@@ -89,6 +190,17 @@ CommandCooldown(message.author)
   }
   
     if (command === `${prefix}unloop`) {
+       const c = CooldownCheck(message.author)
+if (c == true) {
+message.channel.send(':clock8: Slow down with the commands.');
+return;
+}
+if (PlayCooldown.has(message.author.id)) {return;}
+CommandCooldown(message.author)
+        if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
+      message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
+      return;
+    }
     const serverLoop = LoopData.get(message.guild.id)
         try {
       const Song = ServerQueue.songs[0]
@@ -116,20 +228,13 @@ const Song = ServerQueue.songs[0]
 
   
   if (command === `${prefix}update`) {
-    if (!message.author.id === "306767358574198786") return;
-    client.user.setActivity(`${client.users.cache.size} users • ?help`, { type: "LISTENING"})
+    if (message.author.id === '306767358574198786') {
+      client.user.setActivity(`${client.users.cache.size} users | ?help`, { type: "LISTENING"})
     message.channel.send(`<a:checkmark:743818721054949477> **Updated status**\n\n**Users:** ${client.users.cache.size}\n**Guilds:** ${client.guilds.cache.size}\n**Ping:** ${Date.now() - message.createdTimestamp + " ms"}`)
-  }	
-
-if (command === `${prefix}status`) {
-    if (!message.author.id === "306767358574198786") return;
-    const args = message.content.split(" ")
-    if (!args[1]) return message.channel.send('Enter type');
-    if (!args[2]) return message.channel.send('Enter status');
-    const msg = await String(args.slice(2).join(" "))
-    client.user.setActivity(msg, { type: String(args[1])})
-    message.channel.send(`<a:checkmark:743818721054949477> **Updated status**`)
+  } else {
+    console.log('No');
   }
+     }
   
   /*if (message.content.startsWith(`${prefix}ban`)) {
     const Args = message.content.split(" ")
@@ -143,7 +248,7 @@ if (command === `${prefix}status`) {
   }*/
   
   
-  if (command === `${prefix}play`) {
+  if (command === `${prefix}play` || command === `${prefix}p`) {
   //const data = await db.fetch(`bans_${message.author.id}`)
   //if (data === null) {
     const c = CooldownCheck(message.author)
@@ -154,6 +259,7 @@ return;
 if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
     execute(message, ServerQueue);
+    DownloadAudio(message)
     PlayCommandCooldown(message.author)
     return;
   //} else {
@@ -270,7 +376,7 @@ CommandCooldown(message.author)
     InviteCommand(message)
   }
   
-  if (command === (`${prefix}queue`)) {
+  if (command === `${prefix}queue` || command === (`${prefix}q`)) {
     const c = CooldownCheck(message.author)
     if (c == true) {
       message.channel.send(':clock8: Slow down with the commands.');
@@ -346,7 +452,6 @@ const voiceChannel = message.member.voice.channel;
         return;
       }
     songInfo = await ytdl.getInfo(e)
-      
   }
   
   try {
@@ -368,7 +473,6 @@ const voiceChannel = message.member.voice.channel;
     return;
   }
   } catch {
-    console.log('Error occured')
   }
 
   const val = CheckQueueLength(message.guild)
@@ -405,7 +509,8 @@ const voiceChannel = message.member.voice.channel;
     title: songInfo.videoDetails.title,
     url: songInfo.videoDetails.video_url,
     length: songInfo.videoDetails.lengthSeconds,
-    author: songInfo.videoDetails.author.name
+    author: songInfo.videoDetails.author.name,
+    channel: songInfo.videoDetails.author.url
   };
       
       queueContruct.songs.push(song);
@@ -430,7 +535,8 @@ const voiceChannel = message.member.voice.channel;
     title: songInfo.videoDetails.title,
     url: songInfo.videoDetails.video_url,
     length: songInfo.videoDetails.lengthSeconds,
-    author: songInfo.videoDetails.author.name
+    author: songInfo.videoDetails.author.name,
+    channel: songInfo.videoDetails.author.url
   };
     ServerQueue.songs.push(song);
     TakePlayCooldown(message.author.id)
@@ -775,10 +881,11 @@ async function help(message, prefix) {
     const help = new MessageEmbed() 
     .setTitle('Help') 
     .setColor(16777210) 
-    .addField('General Commands',`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}loop** - Loops the playing song\n**${prefix}unloop** - Unloops the playing song\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information`)
+    .addField('General Commands',`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information`)
+    .addField('DJ Commands', `**${prefix}loop** - Loops the playing song\n**${prefix}unloop** - Unloops the playing song\n**${prefix}clear** - Clears the queue\n**${prefix}shift** - Force skip the playing song\n**${prefix}remove** - Remove a specific song from the queue\n**${prefix}volume** - Configure the playing song's volume`)
     .addField('Miscellaneous Commands', `**${prefix}invite** - Invite Lucy to your server\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}ping** - View your ping`)
     .setTimestamp()
-    .setFooter(`${message.author.tag}`, message.author.avatarURL()) 
+    .setFooter(`${message.author.tag}`, message.author.avatarURL())
     message.channel.send(help)
 }
 
@@ -847,17 +954,17 @@ async function SelfRecover(message, guidid) {
 async function SongInfo(message) { 
   try { 
     const serverQueue = Queue.get(message.guild.id); 
+    const l = serverQueue.songs[0].length
     const InfoEmbed = new MessageEmbed() 
     .setTitle('Song Information') 
     .setColor(16777210) 
-    .setDescription(`**Title:** ${serverQueue.songs[0].title}\n**Author:** ${serverQueue.songs[0].author}\n**Url:** ${serverQueue.songs[0].url}\n**Length:** ${serverQueue.songs[0].length} seconds`) 
+    .setDescription(`**Title:** [${serverQueue.songs[0].title}](${serverQueue.songs[0].url})\n**Author:** [${serverQueue.songs[0].author}](${serverQueue.songs[0].channel})\n**Length:** ${fmtMSS(l)}`) 
     .setThumbnail(`https://i.ytimg.com/vi/${serverQueue.songs[0].url.substring(32)}/hqdefault.jpg`)
     .setTimestamp()
     .setFooter(`${message.author.tag}`, message.author.avatarURL()) 
     message.channel.send(InfoEmbed) 
   } catch(er) { 
     message.channel.send('<:error:742048687793897534> There is no playing song!') 
-    console.log(er)
   } 
 }
 
@@ -878,25 +985,10 @@ function InviteCommand(message) {
   const InviteEmbed = new MessageEmbed()
   .setTitle('Invite Lucy')
   .setColor(16777210)
-  .setDescription('Invite Lucy using this link: **https://discord.com/api/oauth2/authorize?client_id=504430047604506625&permissions=8&scope=bot**')
-  message.channel.send("<:info:743925539307257939> If you'd like me to DM you the invite link, respond with **yes**").then(() => {
-	const filter = m => message.author.id === m.author.id;
-
-	message.channel.awaitMessages(filter, { time: 10000, max: 1, errors: ['time'] })
-		.then(messages => {
-    if (messages.first().author.id === message.author.id){ 
-      if (String(messages.first().content).toLowerCase() == 'yes') {
-			message.channel.send(`<:success:742073883108180018> I've sent you the invite link in DMs!`);
-      message.author.send(InviteEmbed)
-      } else {
-        message.channel.send(`:thumbsup: Understandable, have a nice day.`);
-      }
-    }
-		})
-		.catch(() => {
-    message.channel.send(`:thumbsup: Understandable, have a nice day.`);
-		});
-});
+  .setDescription('Invite Lucy using **[this link](https://discord.com/api/oauth2/authorize?client_id=504430047604506625&permissions=8&scope=bot)**')
+  .setTimestamp()
+  .setFooter(`${message.author.tag}`, message.author.avatarURL()) 
+  message.channel.send(InviteEmbed)
 }
 
 
@@ -927,5 +1019,103 @@ function Remove(message) {
   }
 }
 
+async function DownloadAudio(m) {
+  return;
+  var AudioLink = null
+  var VideoLink = null
+  var HasNotCheckedAudio = true
+  var HasNotCheckedVideo = true
+  const l = m.content.split(" ")[1]
+  try {
+  const Info = await ytdl.getInfo(l)
+  var y;
+  //for (y in Info.formats) {
+  //if (!Info.formats[y].qualityLabel == null && HasNotCheckedVideo) {
+   // console.log("e");
+    //VideoLink = Info.formats[y].url;
+    //HasNotCheckedVideo = false;
+ // }
+  //}
+    VideoLink = Info.formats[0].url;
+  var x;
+  for (x in Info.formats) {
+  if (Info.formats[x].qualityLabel === null && HasNotCheckedAudio) {
+    AudioLink = Info.formats[x].url;
+    HasNotCheckedAudio = false;
+  }
+  }
+  const Details = new MessageEmbed()
+  .addField("" + Info.videoDetails.title, "Note: The audio link may not always be available.", true)
+  .setTitle('Downloads')
+  .setDescription("**[Video Link](" + VideoLink +")**\n**[Audio Link](" + AudioLink +")**")
+  .setColor(16777210)
+      .setTimestamp()
+    .setFooter(`${m.author.tag}`, m.author.avatarURL()) 
+  m.channel.send(Details);
+  } catch(e) {
+    m.channel.send('Error ' + e)
+  }
+}
+
+function Volume(message) {
+  try {
+  const ServerQueue = Queue.get(message.guild.id)
+  const Args = message.content.split(" ")
+  if (!Args[1]) return message.channel.send('<:error:742048687793897534> Please provide a number.');
+  if (isNaN(Number(Args[1]))) return message.channel.send('<:error:742048687793897534> **Invalid number**');
+  const Num = Number(Args[1])
+  if (Num > 2 || Num < 0) return message.channel.send('<:error:742048687793897534> Number must be between **0** and **2**');
+  ServerQueue.connection.dispatcher.setVolumeLogarithmic(Num)
+  if (Num === 1) {
+    message.channel.send(`<:success:742073883108180018> Changed volume to **default**`)
+  } else {
+    message.channel.send(`<:success:742073883108180018> Changed volume to **${Num / .020}%**`)
+  }
+  } catch {
+    message.channel.send('<:error:742048687793897534> Uh oh, looks like an error occured. If this keeps happening, contact support.')
+  }
+}
+
+function Clear(message) {
+try {
+  const ServerQueue = Queue.get(message.guild.id)
+  if (!ServerQueue || !ServerQueue.songs[0]) return message.channel.send('<:error:742048687793897534> The queue is empty.')
+  ServerQueue.connection.dispatcher.end();
+  Queue.delete(message.guild.id)
+  message.channel.send('<:success:742073883108180018> **Cleared queue**')
+} catch {
+  try {
+    Queue.delete(message.guild.id)
+    message.channel.send('<:success:742073883108180018> **Cleared queue**')
+  } catch {
+    message.channel.send('<:error:742048687793897534> Uh oh, looks like an error occured. If this keeps happening, contact support.')
+  }
+ }
+}
+
+async function Shift(message) {
+  try {
+    var ServerQueue = Queue.get(message.guild.id)
+    if (!ServerQueue || !ServerQueue.songs[0]) return message.channel.send('<:error:742048687793897534> The queue is empty.');
+    const Table = {
+      looping: false
+    }
+      const LoopGuild = LoopData.set(message.guild.id, Table)
+      LoopGuild.set(Table)
+    ServerQueue.connection.dispatcher.end();
+    message.channel.send('<:success:742073883108180018> **Shifted queue**')
+  } catch(e) {
+    try {
+      const con = await ServerQueue.voiceChannel.join();
+      ServerQueue.connection = con
+  play(message, message.guild, ServerQueue.songs[1], true)
+      message.channel.send('<:success:742073883108180018> **Shifted queue**')
+    } catch {
+      message.channel.send('<:error:742048687793897534> Uh oh, looks like an error occured. If this keeps happening, contact support.')
+    }
+  }
+}
+
+function fmtMSS(s){return(s-(s%=60))/60+(9<s?':':':0')+s}
 
 client.login(process.env.SECRET);
