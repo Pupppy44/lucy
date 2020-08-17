@@ -1,5 +1,6 @@
+// 2npspsfe5-
 const { Discord, MessageEmbed, Client } = require("discord.js");
-const db = require('quick.db')
+const save = require('data-store');
 const ytdl = require("ytdl-core");
 const client = new Client();
 
@@ -29,8 +30,9 @@ client.on("message", async message => {
   }
   const ServerQueue = Queue.get(message.guild.id);
   
-  let fetch = await db.fetch(`prefix_${message.guild.id}`);
-  if (fetch === null)
+  const save = require('data-store')({ path: process.cwd() + '/prefixes.json' });
+  let fetch = save.get(`prefix_${message.guild.id}`)
+  if (fetch === null || fetch === undefined)
     prefix = "?"
   else
     prefix = fetch
@@ -45,7 +47,7 @@ return;
 }
 if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
-    if (message.member.roles.cache.some(role => role.name === 'DJ')) { 
+    if (message.member.roles.cache.some(role => role.name.toString().toLowerCase() === 'dj')) { 
       if (!message.member.voice.channel) return message.channel.send("<:warning:743466779249999884> You must be in a voice channel to clear the queue!");
     if (!ServerQueue) return message.channel.send("<:error:742048687793897534> There's no song(s) in the queue.");
     if (!ServerQueue.songs[0]) return message.channel.send("<:error:742048687793897534> There's no song(s) in the queue.");
@@ -71,7 +73,7 @@ return;
 }
 if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
-    if (message.member.roles.cache.some(role => role.name === 'DJ')) { 
+    if (message.member.roles.cache.some(role => role.name.toString().toLowerCase() === 'dj')) { 
     if (!message.member.voice.channel) return message.channel.send("<:warning:743466779249999884> You must be in a voice channel to force skip!");
     if (!ServerQueue) return message.channel.send("<:error:742048687793897534> No song is playing!");
     if (!ServerQueue.songs[0]) return message.channel.send("<:error:742048687793897534> No song is playing!");
@@ -108,7 +110,7 @@ return;
 }
 if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
-    if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
+    if (!message.member.roles.cache.some(role => role.name.toString().toLowerCase() === 'dj')) { 
       message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
       return;
     }
@@ -130,7 +132,7 @@ return;
 }
 if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
-    if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
+    if (!message.member.roles.cache.some(role => role.name.toString().toLowerCase() === 'dj')) { 
       message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
       return;
     }
@@ -153,7 +155,7 @@ return;
 }
 if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
-        if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
+        if (!message.member.roles.cache.some(role => role.name.toString().toLowerCase() === 'dj')) { 
       message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
       return;
     }
@@ -197,7 +199,7 @@ return;
 }
 if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
-        if (!message.member.roles.cache.some(role => role.name === 'DJ')) {
+      if (!message.member.roles.cache.some(role => role.name.toString().toLowerCase() === 'dj')) { 
       message.channel.send('<:error:742048687793897534> You must have the **DJ** role to use this command!');
       return;
     }
@@ -856,7 +858,7 @@ async function report(user, message) {
 }
 
 async function setprefix(message, user) {
-  const db = require('quick.db')
+  const save = require('data-store')({ path: process.cwd() + '/prefixes.json' });
   const Args = message.content.split(" ")
   const perms = message.channel.permissionsFor(user);
   if (!perms.has('MANAGE_GUILD')) {
@@ -871,8 +873,8 @@ async function setprefix(message, user) {
     message.channel.send('<:error:742048687793897534> Your prefix must be under **3** characters.')
     return;
   }
-  const p = await db.set(`prefix_${message.guild.id}`, Args[1])
-  message.channel.send(`<:success:742073883108180018> Set prefix to **${db.get(`prefix_${message.guild.id}`)}**`)
+  const p = await save.set(`prefix_${message.guild.id}`, Args[1])
+  message.channel.send(`<:success:742073883108180018> Set prefix to **${save.get(`prefix_${message.guild.id}`)}**`)
   
 }
 
@@ -927,23 +929,8 @@ function TakePlayCooldown(user) {
   return;
 }
 
-async function Ban(m, id, reason) {
-  try {
-  const p = await db.set(`bans_${id}`, reason)
-  const dev = await client.users.fetch(String(id));
-  const rr = await db.fetch(`bans_${id}`)
-  m.channel.send(`<:banhammer:742368388587847680> Banned ${dev} for reason: **${rr}**`)
-  } catch(err) {
-    m.channel.send('<:error:742048687793897534> An error occured when trying to ban.')
-  }
-}
-
 async function CheckBan(id) {
-  const data = await db.fetch(`bans_${id}`)
-  if (!data == null) {
-    return false
-  } else {
-  } return true
+  return;
 }
 
 async function SelfRecover(message, guidid) {
