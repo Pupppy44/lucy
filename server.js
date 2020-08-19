@@ -4,6 +4,29 @@ const save = require('data-store');
 const ytdl = require("ytdl-core");
 const client = new Client();
 
+var Sounds = {
+  bruh: "https://www.youtube.com/watch?v=2ZIpFytCSVc",
+  oof: "https://www.youtube.com/watch?v=HoBa2SyvtpE",
+  gamecube: "https://www.youtube.com/watch?v=l3orL00gnME",
+  fart: "https://www.youtube.com/watch?v=W_FRPoJIrlI", 
+  vsauce: "https://www.youtube.com/watch?v=sk-_UnBRLcI", 
+  garbage: "https://www.youtube.com/watch?v=FZUcpVmEHuk",
+  explosion: "https://www.youtube.com/watch?v=jEexefuB62c",
+  trains: "https://www.youtube.com/watch?v=5DjOL2we8ko",
+  xp: "https://www.youtube.com/watch?v=7nQ2oiVqKHw",
+  poggers: "https://www.youtube.com/watch?v=eoUkzOnNN1o",
+  trombone: "https://www.youtube.com/watch?v=CQeezCdF4mk",
+  missionfailed: "https://www.youtube.com/watch?v=U9mozLkojoM",
+  justdoit: "https://www.youtube.com/watch?v=z2Qe1d4urfw",
+  lawandorder: "https://www.youtube.com/watch?v=-m92tuqthJw",
+  wasted: "https://www.youtube.com/watch?v=K3kFQHKE0LA",
+  tadaah: "https://www.youtube.com/watch?v=jLtbFWJm9_M",
+  nope: "https://www.youtube.com/watch?v=3Y7aWLpuxA4",
+  nani: "https://www.youtube.com/watch?v=5fAn276N1nU",
+  laugh: "https://www.youtube.com/watch?v=29UH3Yovrn0",
+  nogodpleaseno: "https://www.youtube.com/watch?v=IUW8JhqtmZ0"
+}
+
 const Queue = new Map();
 let Cooldown = new Set();
 let LoopData = new Map();
@@ -15,6 +38,8 @@ let dmc = new Set();
 let dmc2 = new Set();
 let dmc3 = new Set();
 
+const IsTestingBot = false
+
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
   client.user.setActivity(`${client.users.cache.size} users | ?help`, { type: "LISTENING"})
@@ -22,8 +47,9 @@ client.on("ready", () => {
 
 client.on("message", async message => {
   if(message.author.bot) return;
+  if (message.guild.id == "506125560745951242" && IsTestingBot === true) return;
   
-  let prefix = "?"
+  let prefix = "!"
   if (message.channel.type === "dm" && message.content.startsWith('?') && String(message.content).length > 1)  {
     message.author.send("<:error:742048687793897534> You can't use commands in DMs.")
     return;
@@ -33,11 +59,36 @@ client.on("message", async message => {
   const save = require('data-store')({ path: process.cwd() + '/prefixes.json' });
   let fetch = save.get(`prefix_${message.guild.id}`)
   if (fetch === null || fetch === undefined)
-    prefix = "?"
+    prefix = "!"
   else
     prefix = fetch
-  
+
   const command = message.content.toString().toLowerCase().split(" ")[0]
+  
+  if (command === `${prefix}tip`) {
+    if (message.guild.id == "506125560745951242" && IsTestingBot === true && message.author.id !== "306767358574198786") return message.channel.send('<:angrycry:745334228786479306> **Only Lucy Developers** can use me!');
+    const c = CooldownCheck(message.author)
+if (c == true) {
+message.channel.send(':clock8: Slow down with the commands.');
+return;
+}
+if (PlayCooldown.has(message.author.id)) {return;}
+CommandCooldown(message.author)
+    Tip(message)
+  }
+  
+  if (command === `${prefix}soundboard` || command === `${prefix}sb`) {
+        const c = CooldownCheck(message.author)
+if (c == true) {
+message.channel.send(':clock8: Slow down with the commands.');
+return;
+}
+if (PlayCooldown.has(message.author.id)) {return;}
+CommandCooldown(message.author)
+    const args = message.content.split(" ")
+    if (!args[1]) return SoundboardHelp(message);
+    if (args[1]) return Soundboard(message);
+  }
   
   if (command === `${prefix}clear`) {
      const c = CooldownCheck(message.author)
@@ -336,7 +387,7 @@ CommandCooldown(message.author)
     if (!message.member.voice.channel) return message.channel.send(":warning: You're currently not in a voice channel.");
       const join = await message.member.voice.channel.join();
       message.channel.send(`<:success:742073883108180018> Connected to **${message.member.voice.channel.name}**`)
-      if (ServerQueue.songs[0]) {
+      if (ServerQueue && ServerQueue.songs[0]) {
         ServerQueue.connection = join
         //message.channel.send('<:warning:743466779249999884> Do not force disconnect the bot, use `disconnect`')
       }
@@ -512,7 +563,8 @@ const voiceChannel = message.member.voice.channel;
     url: songInfo.videoDetails.video_url,
     length: songInfo.videoDetails.lengthSeconds,
     author: songInfo.videoDetails.author.name,
-    channel: songInfo.videoDetails.author.url
+    channel: songInfo.videoDetails.author.url,
+    type: "music"
   };
       
       queueContruct.songs.push(song);
@@ -538,7 +590,8 @@ const voiceChannel = message.member.voice.channel;
     url: songInfo.videoDetails.video_url,
     length: songInfo.videoDetails.lengthSeconds,
     author: songInfo.videoDetails.author.name,
-    channel: songInfo.videoDetails.author.url
+    channel: songInfo.videoDetails.author.url,
+    type: "music"
   };
     ServerQueue.songs.push(song);
     TakePlayCooldown(message.author.id)
@@ -726,10 +779,16 @@ function play(m, guild, song, b) {
     if (!serverQueue.songs[1]) { 
       var serverLoop = LoopData.get(guild.id)
       if (serverLoop.looping === false) {
+        var logo;
+            if(serverQueue.songs[0].type === "soundboard") {
+      logo = '<:soundboard:743296219975254057>'
+    } else {
+      logo = '<:music:745262043388706908>'
+    }
                 if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
-      serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`)
+      serverQueue.textChannel.send(`${logo} Now playing requested song.`)
                   kk = true;
-                } else {serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`); 
+                } else {serverQueue.textChannel.send(`${logo} Now playing: **${song.title}**`); 
                        kk = true;
                        }
     }
@@ -769,12 +828,18 @@ function play(m, guild, song, b) {
         return;
       }
       if (kk === false) {
+        var logo = null
+        if (song.type == "soundboard") {
+          logo = "<:soundboard:743296219975254057>"
+        } else {
+          logo = "<:music:745262043388706908>"
+        }
           if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
-      serverQueue.textChannel.send(`:musical_note:  Now playing requested song.`)
+      serverQueue.textChannel.send(`${logo} Now playing requested song.`)
       TakePlayCooldown(m.author.id)
       return;
     } else {
-      serverQueue.textChannel.send(`:musical_note:  Now playing: **${song.title}**`)
+      serverQueue.textChannel.send(`${logo} Now playing: **${song.title}**`)
       return;
     }
       }
@@ -807,15 +872,22 @@ function play(m, guild, song, b) {
 
 function queue(msg, guild) {
   const serverQueue = Queue.get(guild.id);
+  if (!serverQueue || !serverQueue.songs) return msg.channel.send('<:warning:743466779249999884> The queue is empty.');
  try {
    
    let queuetxt = ""
    var x;
    for (x in serverQueue.songs) {
-    if(x == 0) {
-       queuetxt += `\n**Playing:** ${serverQueue.songs[x].title}\n`
+    var logo;
+    if(serverQueue.songs[x].type === "soundboard") {
+      logo = '<:soundboard:743296219975254057>'
     } else {
-      queuetxt += `\n**${x}.** ${serverQueue.songs[x].title}`
+      logo = '<:music:745262043388706908>'
+    }
+    if(x == 0) {
+       queuetxt += `\n${logo} **Playing:** ${serverQueue.songs[x].title}\n`
+    } else {
+      queuetxt += `\n**${logo}  ${x}.** ${serverQueue.songs[x].title}`
     }
      }
      const QueueEmbed = new MessageEmbed()
@@ -826,7 +898,7 @@ function queue(msg, guild) {
      .setFooter(`${msg.author.tag}`, msg.author.avatarURL()) 
      msg.channel.send(QueueEmbed)
  } catch(e) {
-    msg.channel.send('The queue is currently empty.')
+    msg.channel.send('<:error:742048687793897534> `Uh oh...` Looks like an error occured. If this keeps happening, contact support.')
    return;
  }
   
@@ -858,6 +930,7 @@ async function report(user, message) {
 }
 
 async function setprefix(message, user) {
+  try {
   const save = require('data-store')({ path: process.cwd() + '/prefixes.json' });
   const Args = message.content.split(" ")
   const perms = message.channel.permissionsFor(user);
@@ -875,6 +948,9 @@ async function setprefix(message, user) {
   }
   const p = await save.set(`prefix_${message.guild.id}`, Args[1])
   message.channel.send(`<:success:742073883108180018> Set prefix to **${save.get(`prefix_${message.guild.id}`)}**`)
+  } catch {
+    message.channel.send('<:error:742048687793897534> `Uh oh...` Looks like an error occured. If this keeps happening, contact support.')
+  }
   
 }
 
@@ -883,9 +959,9 @@ async function help(message, prefix) {
     const help = new MessageEmbed() 
     .setTitle('Help') 
     .setColor(16777210) 
-    .addField('General Commands',`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information`)
+    .addField('General Commands',`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}soundboard** - Displays the soundboard\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information`)
     .addField('DJ Commands', `**${prefix}loop** - Loops the playing song\n**${prefix}unloop** - Unloops the playing song\n**${prefix}clear** - Clears the queue\n**${prefix}shift** - Force skip the playing song\n**${prefix}remove** - Remove a specific song from the queue\n**${prefix}volume** - Configure the playing song's volume`)
-    .addField('Miscellaneous Commands', `**${prefix}invite** - Invite Lucy to your server\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}ping** - View your ping`)
+    .addField('Miscellaneous Commands', `**${prefix}invite** - Invite Lucy to your server\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}tip** - See a random tip`)
     .setTimestamp()
     .setFooter(`${message.author.tag}`, message.author.avatarURL())
     message.channel.send(help)
@@ -942,11 +1018,22 @@ async function SongInfo(message) {
   try { 
     const serverQueue = Queue.get(message.guild.id); 
     const l = serverQueue.songs[0].length
+    var thumbnail = null
+    var url = null
+    var desc = null
+    if (serverQueue.songs[0].type === "soundboard") {
+      thumbnail = 'https://i.imgur.com/kT0QBiv.png'
+      desc = (`**Title:** ${serverQueue.songs[0].title}\n**Type:** Soundboard`) 
+    } else {
+      thumbnail = `https://i.ytimg.com/vi/${serverQueue.songs[0].url.substring(32)}/hqdefault.jpg`
+      url = serverQueue.songs[0].url
+      desc = `**Title:** [${serverQueue.songs[0].title}](${url})\n**Author:** [${serverQueue.songs[0].author}](${serverQueue.songs[0].channel})\n**Length:** ${fmtMSS(l)}`
+    }
     const InfoEmbed = new MessageEmbed() 
     .setTitle('Song Information') 
     .setColor(16777210) 
-    .setDescription(`**Title:** [${serverQueue.songs[0].title}](${serverQueue.songs[0].url})\n**Author:** [${serverQueue.songs[0].author}](${serverQueue.songs[0].channel})\n**Length:** ${fmtMSS(l)}`) 
-    .setThumbnail(`https://i.ytimg.com/vi/${serverQueue.songs[0].url.substring(32)}/hqdefault.jpg`)
+    .setDescription(desc)
+    .setThumbnail(thumbnail)
     .setTimestamp()
     .setFooter(`${message.author.tag}`, message.author.avatarURL()) 
     message.channel.send(InfoEmbed) 
@@ -1002,7 +1089,7 @@ function Remove(message) {
       message.channel.send(`<:success:742073883108180018> Removed **${Name}** from the queue.`);
     }
   } catch {
-    message.channel.send('<:error:742048687793897534> Uh oh, looks like an error occured. If this keeps happening, contact support.')
+    message.channel.send('<:error:742048687793897534> `Uh oh...` Looks like an error occured. If this keeps happening, contact support.')
   }
 }
 
@@ -1059,7 +1146,7 @@ function Volume(message) {
     message.channel.send(`<:success:742073883108180018> Changed volume to **${Num / .020}%**`)
   }
   } catch {
-    message.channel.send('<:error:742048687793897534> Uh oh, looks like an error occured. If this keeps happening, contact support.')
+    message.channel.send('<:error:742048687793897534> `Uh oh...` Looks like an error occured. If this keeps happening, contact support.')
   }
 }
 
@@ -1073,9 +1160,11 @@ try {
 } catch {
   try {
     Queue.delete(message.guild.id)
+            Voting.delete(message.guild.id)
+      StopVoting.delete(message.guild.id)
     message.channel.send('<:success:742073883108180018> **Cleared queue**')
   } catch {
-    message.channel.send('<:error:742048687793897534> Uh oh, looks like an error occured. If this keeps happening, contact support.')
+    message.channel.send('<:error:742048687793897534> `Uh oh...` Looks like an error occured. If this keeps happening, contact support.')
   }
  }
 }
@@ -1097,12 +1186,92 @@ async function Shift(message) {
       ServerQueue.connection = con
   play(message, message.guild, ServerQueue.songs[1], true)
       message.channel.send('<:success:742073883108180018> **Shifted queue**')
+              Voting.delete(message.guild.id)
+      StopVoting.delete(message.guild.id)
     } catch {
       message.channel.send('<:error:742048687793897534> Uh oh, looks like an error occured. If this keeps happening, contact support.')
     }
   }
 }
 
+function SoundboardHelp(message) {
+  const Embed = new MessageEmbed()
+  .setTitle('Soundboard')
+  .setColor(16777210)
+  .addField('To play a sound: `soundboard <name>`', '`bruh`, `oof`, `gamecube`, `fart`, `vsauce`, `garbage`, `explosion`, `trains`, `xp`\n`poggers`, `trombone`, `missionfailed`, `justdoit`, `lawandorder`, `wasted`\n`tadaah`, `nope`, `nani`, `laugh`, `nogodpleaseno`', false)
+  message.channel.send(Embed)
+}
+
+async function Soundboard(message) {
+try {
+const args = message.content.split(" ");
+const Word = args[1].toString().toLowerCase();
+const voiceChannel = message.member.voice.channel;
+  if (!voiceChannel) return message.channel.send(":warning: You must be in a voice channel to play a sound!")
+  const perms = voiceChannel.permissionsFor(message.client.user);
+  if (!perms.has("CONNECT")) return message.channel.send(":warning: I cannot connect to this channel!")
+  if (!perms.has("SPEAK")) return message.channel.send(":warning: I cannot speak in this channel!")
+  if (!Sounds[Word]) return message.channel.send('<:error:742048687793897534> Sound `' + args[1] + '` not found')
+  const val = CheckQueueLength(message.guild)
+  if (val === true) {
+    TakePlayCooldown(message.author.id)
+    message.channel.send('<:error:742048687793897534> The queue must have under **10** songs.')
+    return;
+  }
+  const Song = Sounds[Word]
+  const ServerQueue = Queue.get(message.guild.id)
+  if (!ServerQueue) {
+   const queueContruct = {
+      textChannel: message.channel,
+      voiceChannel: voiceChannel,
+      connection: null,
+      songs: [],
+      volume: 5,
+      playing: true
+    };
+    Queue.set(message.guild.id, queueContruct);
+    queueContruct.connection = await message.member.voice.channel.join();
+    const SongInfo = await ytdl.getInfo(Song)
+    const Info = {
+      title: UpperCase(Word),
+      url: SongInfo.videoDetails.video_url,
+      type: "soundboard"
+    }
+    queueContruct.songs.push(Info)
+    play(message, message.guild, queueContruct.songs[0]);
+    } else {
+    const Song = Sounds[Word]
+    const SongInfo = await ytdl.getInfo(Song)
+    const Info = {
+      title: UpperCase(Word),
+      url: SongInfo.videoDetails.video_url,
+      type: "soundboard"
+  }
+    const UpperName = UpperCase(Word)
+    ServerQueue.songs.push(Info);
+    message.channel.send(`:thumbsup: **${UpperName}** has been added to the queue!`)
+  }
+} catch {
+  message.channel.send('<:error:742048687793897534> `Uh oh...` Looks like an error occured. If this keeps happening, contact support.')
+}
+}
+
+function Tip(message) {
+  const Tips = [
+    "Some commands have shorter versions of them, can you guess what `p` is?",
+    "We have a support server **@** `discord.gg/pcYbebA`",
+    "There's some secret, unlisted commands. Did you find all of them yet?",
+    "Lucy started as a soundboard bot.",
+    "Want to invite the bot to another server? Use the `invite` command."
+  ]
+  const Random = Math.floor(Math.random() * Math.floor(5));
+  message.channel.send('`Did you know?` ' + Tips[Random])
+}
+
 function fmtMSS(s){return(s-(s%=60))/60+(9<s?':':':0')+s}
+
+function UpperCase(string) {
+return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 client.login(process.env.SECRET);
