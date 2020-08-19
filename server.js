@@ -49,7 +49,7 @@ client.on("message", async message => {
   if(message.author.bot) return;
   if (message.guild.id == "506125560745951242" && IsTestingBot === true) return;
   
-  let prefix = "!"
+  let prefix = "?"
   if (message.channel.type === "dm" && message.content.startsWith('?') && String(message.content).length > 1)  {
     message.author.send("<:error:742048687793897534> You can't use commands in DMs.")
     return;
@@ -59,7 +59,7 @@ client.on("message", async message => {
   const save = require('data-store')({ path: process.cwd() + '/prefixes.json' });
   let fetch = save.get(`prefix_${message.guild.id}`)
   if (fetch === null || fetch === undefined)
-    prefix = "!"
+    prefix = "?"
   else
     prefix = fetch
 
