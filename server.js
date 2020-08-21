@@ -5,26 +5,26 @@ const ytdl = require("ytdl-core");
 const client = new Client();
 
 var Sounds = {
-  bruh: "https://www.youtube.com/watch?v=2ZIpFytCSVc",
-  oof: "https://www.youtube.com/watch?v=HoBa2SyvtpE",
-  gamecube: "https://www.youtube.com/watch?v=l3orL00gnME",
-  fart: "https://www.youtube.com/watch?v=W_FRPoJIrlI", 
-  vsauce: "https://www.youtube.com/watch?v=sk-_UnBRLcI", 
-  garbage: "https://www.youtube.com/watch?v=FZUcpVmEHuk",
-  explosion: "https://www.youtube.com/watch?v=jEexefuB62c",
-  trains: "https://www.youtube.com/watch?v=5DjOL2we8ko",
-  xp: "https://www.youtube.com/watch?v=7nQ2oiVqKHw",
-  poggers: "https://www.youtube.com/watch?v=eoUkzOnNN1o",
-  trombone: "https://www.youtube.com/watch?v=CQeezCdF4mk",
-  missionfailed: "https://www.youtube.com/watch?v=U9mozLkojoM",
-  justdoit: "https://www.youtube.com/watch?v=z2Qe1d4urfw",
-  lawandorder: "https://www.youtube.com/watch?v=-m92tuqthJw",
-  wasted: "https://www.youtube.com/watch?v=K3kFQHKE0LA",
-  tadaah: "https://www.youtube.com/watch?v=jLtbFWJm9_M",
-  nope: "https://www.youtube.com/watch?v=3Y7aWLpuxA4",
-  nani: "https://www.youtube.com/watch?v=5fAn276N1nU",
-  laugh: "https://www.youtube.com/watch?v=29UH3Yovrn0",
-  nogodpleaseno: "https://www.youtube.com/watch?v=IUW8JhqtmZ0"
+  bruh: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fbruh.m4a",
+  oof: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Foof.m4a",
+  gamecube: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fgamecube.m4a",
+  fart: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Ffart.weba", 
+  vsauce: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fvsauce.mp3", 
+  garbage: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fgarbage.weba",
+  explosion: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fexplosion.mp3",
+  trains: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Ftrains.m4a",
+  xp: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fxp.weba",
+  poggers: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fpoggers.mp3",
+  trombone: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Ftrombone.m4a",
+  missionfailed: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fmissionfailed.m4a",
+  justdoit: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fjustdoit.m4a",
+  lawandorder: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Flawandorder.m4a",
+  wasted: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fwasted.m4a",
+  tadaah: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Ftadaah.m4a",
+  nope: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fnope.m4a",
+  nani: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fnani.mp3",
+  laugh: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Flaugh.weba",
+  nogodpleaseno: "https://cdn.glitch.com/f7779efc-40b6-411b-9374-4ee96bcee9dc%2Fnogodpleaseno.mp3"
 }
 
 const Queue = new Map();
@@ -38,11 +38,11 @@ let dmc = new Set();
 let dmc2 = new Set();
 let dmc3 = new Set();
 
-const IsTestingBot = false
+const IsTestingBot = true
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
-  client.user.setActivity(`${client.users.cache.size} users | ?help`, { type: "LISTENING"})
+  client.user.setActivity(`?help`, { type: "LISTENING"})
 });
 
 client.on("message", async message => {
@@ -64,6 +64,11 @@ client.on("message", async message => {
     prefix = fetch
 
   const command = message.content.toString().toLowerCase().split(" ")[0]
+  
+  if (command === `${prefix}search`) {
+    message.channel.send('<:angrycry:745334228786479306> This command is currently **blocked** from users.')
+    return;
+  }
   
   if (command === `${prefix}tip`) {
     if (message.guild.id == "506125560745951242" && IsTestingBot === true && message.author.id !== "306767358574198786") return message.channel.send('<:angrycry:745334228786479306> **Only Lucy Developers** can use me!');
@@ -313,7 +318,6 @@ if (PlayCooldown.has(message.author.id)) {return;}
 CommandCooldown(message.author)
     execute(message, ServerQueue);
     DownloadAudio(message)
-    PlayCommandCooldown(message.author)
     return;
   //} else {
   //          message.channel.send(`<:banhammer:742368388587847680> You have been banned from using this bot. Reason: ${data}`)
@@ -474,7 +478,6 @@ const voiceChannel = message.member.voice.channel;
   if (!perms.has("SPEAK")) return message.channel.send(":warning: I cannot speak in this channel!")
   
   if (!args[1]) { 
-    TakePlayCooldown(message.author.id)
     message.channel.send(':warning: Please enter a valid YouTube link or video name.') 
     return; 
   }
@@ -484,15 +487,17 @@ const voiceChannel = message.member.voice.channel;
   try {
   songInfo = await ytdl.getInfo(args[1])
   } catch {
-    const ReportMsg = await String(args.slice(1).join(" "))
+    var Videos = ["hi"]
+    var ReportMsg = await String(args.slice(1).join(" "))
     const youtube = require('ytsr')
       if (ReportMsg.search('@everyone') > -1 || ReportMsg.search('@here') > -1) {
         message.channel.send(`<:warning:743466779249999884> Your search query contains **blacklisted** text.`)
         return;
       }
+    if (ReportMsg.toString().length > 120) return message.channel.send(`<:warning:743466779249999884> Your search query cannot have more than **120** characters.`)
      message.channel.send(`<:search:742479023346548808> Searching for: **${ReportMsg}**`)
       try { 
-        var video = await youtube(String(ReportMsg), {limit: 1})
+        var video = await youtube(String(ReportMsg), {limit: 10})
       } catch 
       { message.channel.send('<:error:742048687793897534> An error occured when trying to search. Does the query contain a large amount of characters?') 
        return;  }
@@ -500,42 +505,71 @@ const voiceChannel = message.member.voice.channel;
       try {
         var e = video.items.filter(a => a.type === 'video')[0].link
       } catch {
-        TakePlayCooldown(message.author.id)
         message.channel.send(`<:error:742048687793897534> No search results for ${ReportMsg}`)
         return;
       }
-    songInfo = await ytdl.getInfo(e)
+      var s = ""
+  var x;
+  for (x in video.items) {
+    var y;
+    var c = 0
+    for (y in Videos) c += 1;
+    if (c < 11) {
+    if (video.items[x] && video.items[x].type === 'video' && !x == 0) { 
+      Videos.push(video.items[x])
+      s += "\n**" + Videos.indexOf(video.items[x]) + ".** " + "[" + video.items[x].title + "](" + Videos[Videos.indexOf(video.items[x])].link + ")"
+    }
   }
-  
+  }
+  const emb = new MessageEmbed()
+  .setTitle('Results for **' + ReportMsg + '**')
+  .setColor(16777210)
+  .setDescription(s)
+  message.channel.send(emb)
+  try {
+  const filter = m => m.author.id === message.author.id
+	var collected = await message.channel.awaitMessages(filter, { max: 1, time: 10000, errors: ['query'] })
+  const Numbe = Number(collected.first().content)
+  if (isNaN(Numbe)) return message.channel.send('<:error:742048687793897534> **Invalid Number**');
+    console.log(video.items[Numbe])
+  if (!Videos[Numbe] || Videos[Numbe].type == 'search-refinements' || Numbe === 0) return message.channel.send(`<:error:742048687793897534> There is no song in **#${Numbe}** of the query.`)
+    const e = Videos[Numbe].link
+    songInfo = await ytdl.getInfo(e)
+  } catch(err) {
+    if (err.toString().search("Could not find player config") > -1) return message.channel.send('<:error:742048687793897534> `Uh oh...` Looks like an error occured. Try using a video link.')
+    message.channel.send(':thumbsup: Alright, have a great day.');
+    return;
+  }
+  }
   try {
     let length = songInfo.videoDetails.lengthSeconds
-    if (length > 3600) {
-      TakePlayCooldown(message.author.id)
-      message.channel.send(`<:error:742048687793897534> Your song must be under **1 hour**.`)
+    if (length > 10800) {
+      message.channel.send(`<:error:742048687793897534> Your song must be under **3 hours**.`)
+      return;
+    }
+  
+  try {
+  let islive = songInfo.videoDetails.isLive
+  if (islive == true) {
+    message.channel.send(`<:error:742048687793897534> Your song cannot be **live**.`)
+    return;
+  }
+    
+      if (length === 0) {
+      message.channel.send(`<:error:742048687793897534> Your song must be over **0 seconds**.`)
       return;
     }
   } catch {
     console.log('Error occured')
   }
-  
-  try {
-  let islive = songInfo.videoDetails.isLive
-  if (islive == true) {
-    TakePlayCooldown(message.author.id)
-    message.channel.send(`<:error:742048687793897534> Your song cannot be **live**.`)
-    return;
-  }
-  } catch {
+      } catch {
   }
 
   const val = CheckQueueLength(message.guild)
   if (val === true) {
-    TakePlayCooldown(message.author.id)
    message.channel.send('<:error:742048687793897534> The queue must have under **10** songs.')
     return;
   }
-  dmcf(message)
-  dmc3.add(message.guild.id)
   
   if (!ServerQueue) {
     const queueContruct = {
@@ -547,16 +581,6 @@ const voiceChannel = message.member.voice.channel;
       playing: true
     };
     Queue.set(message.guild.id, queueContruct);
-    var songInfo = null
-    try{
-    songInfo = await ytdl.getInfo(args[1]); 
-    } catch {
-      const ReportMsg = await String(args.slice(1).join(" "))
-          const youtube = require('ytsr')
-      var video = await youtube(String(ReportMsg))
-      var e = video.items.filter(a => a.type === 'video')[0].link
-      songInfo = await ytdl.getInfo(e)
-    }
     try {
   var song = {
     title: songInfo.videoDetails.title,
@@ -574,7 +598,6 @@ const voiceChannel = message.member.voice.channel;
       dmc3.delete(message.guild.id)
     } catch (err) {
       console.log(err)
-      TakePlayCooldown(message.author.id)
       if(args[1] === "@everyone" || args[1] == "@here") {
       message.channel.send(`<:error:742048687793897534> An error occured when trying to play...nice try.`)
       } else {
@@ -594,14 +617,12 @@ const voiceChannel = message.member.voice.channel;
     type: "music"
   };
     ServerQueue.songs.push(song);
-    TakePlayCooldown(message.author.id)
       if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
         message.channel.send(':thumbsup: `' + song.title + '` has been added to the queue!')
         return;
       } else { message.channel.send(`:thumbsup: **${song.title}** has been added to the queue!`) 
               return; }
     } catch(err) {
-      TakePlayCooldown(message.author.id)
      if (message.content.search('@everyone') > -1 || message.content.search('@here') > -1) {
       message.channel.send(`<:error:742048687793897534> An error occured when trying to play...nice try.`)
       } else {
@@ -752,9 +773,6 @@ function play(m, guild, song, b) {
   }
   
   if (b === true) {
-  
-    
-   // move(serverQueue.songs, 1, 0)
     serverQueue.songs.shift();
   }
   
@@ -793,8 +811,14 @@ function play(m, guild, song, b) {
                        }
     }
     }
+    var higuys = null
+    if (String(song.url).search('youtube') > -1) {
+      higuys = ytdl(song.url)
+    } else {
+      higuys = song.url
+    }
     const dispatcher = serverQueue.connection
-    .play(ytdl(song.url), { filter: 'audioonly' })
+    .play(higuys, { filter: 'audioonly' })
     .on("finish", () => {
       const vdlol = Voting.get(guild.id)
       if (vdlol) {
@@ -812,7 +836,6 @@ function play(m, guild, song, b) {
         return;
       }
         } catch {
-     // serverQueue.songs.shift();
       play(m, guild, serverQueue.songs[0]);
           return;
         }
@@ -824,7 +847,6 @@ function play(m, guild, song, b) {
     try {
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
       if (serverLoop.looping === true) {
-      TakePlayCooldown(m.author.id)
         return;
       }
       if (kk === false) {
@@ -836,7 +858,6 @@ function play(m, guild, song, b) {
         }
           if (String(song.title).search('@everyone') > -1 || String(song.title).search('@here') > -1) {
       serverQueue.textChannel.send(`${logo} Now playing requested song.`)
-      TakePlayCooldown(m.author.id)
       return;
     } else {
       serverQueue.textChannel.send(`${logo} Now playing: **${song.title}**`)
@@ -885,9 +906,13 @@ function queue(msg, guild) {
       logo = '<:music:745262043388706908>'
     }
     if(x == 0) {
-       queuetxt += `\n${logo} **Playing:** ${serverQueue.songs[x].title}\n`
+      var linklol = ""
+      if (serverQueue.songs[x].type === "music") { linklol = serverQueue.songs[x].url }
+       queuetxt += `\n${logo} **Playing:** [${serverQueue.songs[x].title}](${linklol})\n`
     } else {
-      queuetxt += `\n**${logo}  ${x}.** ${serverQueue.songs[x].title}`
+            var linklola = ""
+      if (serverQueue.songs[x].type === "music") { linklola = serverQueue.songs[x].url }
+      queuetxt += `\n**${logo}  ${x}.** [${serverQueue.songs[x].title}](${linklola})`
     }
      }
      const QueueEmbed = new MessageEmbed()
@@ -997,23 +1022,6 @@ function CommandCooldown(user) {
   }, 1000)
 }
 
-function PlayCommandCooldown(user) {
-  return;
-}
-
-function TakePlayCooldown(user) {
-  return;
-}
-
-async function CheckBan(id) {
-  return;
-}
-
-async function SelfRecover(message, guidid) {
-  const join = await message.member.voice.channel.join();
-  const leave = await message.member.voice.channel.leave();
-}
-
 async function SongInfo(message) { 
   try { 
     const serverQueue = Queue.get(message.guild.id); 
@@ -1103,13 +1111,6 @@ async function DownloadAudio(m) {
   try {
   const Info = await ytdl.getInfo(l)
   var y;
-  //for (y in Info.formats) {
-  //if (!Info.formats[y].qualityLabel == null && HasNotCheckedVideo) {
-   // console.log("e");
-    //VideoLink = Info.formats[y].url;
-    //HasNotCheckedVideo = false;
- // }
-  //}
     VideoLink = Info.formats[0].url;
   var x;
   for (x in Info.formats) {
@@ -1199,6 +1200,8 @@ function SoundboardHelp(message) {
   .setTitle('Soundboard')
   .setColor(16777210)
   .addField('To play a sound: `soundboard <name>`', '`bruh`, `oof`, `gamecube`, `fart`, `vsauce`, `garbage`, `explosion`, `trains`, `xp`\n`poggers`, `trombone`, `missionfailed`, `justdoit`, `lawandorder`, `wasted`\n`tadaah`, `nope`, `nani`, `laugh`, `nogodpleaseno`', false)
+  .setTimestamp()
+  .setFooter(`${message.author.tag}`, message.author.avatarURL()) 
   message.channel.send(Embed)
 }
 
@@ -1214,7 +1217,6 @@ const voiceChannel = message.member.voice.channel;
   if (!Sounds[Word]) return message.channel.send('<:error:742048687793897534> Sound `' + args[1] + '` not found')
   const val = CheckQueueLength(message.guild)
   if (val === true) {
-    TakePlayCooldown(message.author.id)
     message.channel.send('<:error:742048687793897534> The queue must have under **10** songs.')
     return;
   }
@@ -1231,20 +1233,18 @@ const voiceChannel = message.member.voice.channel;
     };
     Queue.set(message.guild.id, queueContruct);
     queueContruct.connection = await message.member.voice.channel.join();
-    const SongInfo = await ytdl.getInfo(Song)
     const Info = {
       title: UpperCase(Word),
-      url: SongInfo.videoDetails.video_url,
+      url: Sounds[Word],
       type: "soundboard"
     }
     queueContruct.songs.push(Info)
     play(message, message.guild, queueContruct.songs[0]);
     } else {
     const Song = Sounds[Word]
-    const SongInfo = await ytdl.getInfo(Song)
     const Info = {
       title: UpperCase(Word),
-      url: SongInfo.videoDetails.video_url,
+      url: Sounds[Word],
       type: "soundboard"
   }
     const UpperName = UpperCase(Word)
@@ -1258,13 +1258,14 @@ const voiceChannel = message.member.voice.channel;
 
 function Tip(message) {
   const Tips = [
-    "Some commands have shorter versions of them, can you guess what `p` is?",
+    "Some commands have shorter versions of them, can you guess what **p** is?",
     "We have a support server **@** `discord.gg/pcYbebA`",
     "There's some secret, unlisted commands. Did you find all of them yet?",
     "Lucy started as a soundboard bot.",
-    "Want to invite the bot to another server? Use the `invite` command."
+    "Want to invite the bot to another server? Use the **invite** command.",
+    "Inviting Lucy to your server makes your server **10** times better."
   ]
-  const Random = Math.floor(Math.random() * Math.floor(5));
+  const Random = Math.floor(Math.random() * Math.floor(6));
   message.channel.send('`Did you know?` ' + Tips[Random])
 }
 
@@ -1273,5 +1274,49 @@ function fmtMSS(s){return(s-(s%=60))/60+(9<s?':':':0')+s}
 function UpperCase(string) {
 return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+ async function k(message, st) {
+ const youtube = require('ytsr')
+ var Videos = ["hi"]
+  var video = await youtube(st, {limit: 15})
+        try {
+        var e = video.items.filter(a => a.type === 'video')[0].link
+      } catch {
+        message.channel.send(`<:error:742048687793897534> No search results for **${st}**`)
+        return;
+      }
+  var s = ""
+  var x;
+  for (x in video.items) {
+    var y;
+    var c = 0
+    for (y in Videos) c += 1;
+    if (c < 11) {
+    if (video.items[x] && video.items[x].type === 'video' && !x == 0) { 
+      Videos.push(video.items[x])
+      s += "\n**" + Videos.indexOf(video.items[x]) + ".** " + video.items[x].title
+    }
+  }
+  }
+  const emb = new MessageEmbed()
+  .setTitle('Results for **' + st + '**')
+  .setColor(16777210)
+  .setDescription(s)
+  message.channel.send(emb)
+  try {
+  const filter = m => m.author.id === message.author.id
+	const collected = await message.channel.awaitMessages(filter, { max: 1, time: 10000, errors: ['time'] })
+  const Numbe = Number(collected.first().content)
+  if (isNaN(Numbe)) return message.channel.send('<:error:742048687793897534> **Invalid Number**');
+    console.log(video.items[Numbe])
+  if (!Videos[Numbe] || Videos[Numbe].type == 'search-refinements' || Numbe === 0) return message.channel.send(`<:error:742048687793897534> There is no song in **#${Numbe}** of the query.`)
+  const connection = await message.member.voice.channel.join()
+  const dis = connection.play(ytdl(Videos[Numbe].link))
+	message.channel.send(`Now playing: **${Videos[Numbe].title}**`)
+  } catch(e) {
+    message.channel.send(':thumbsup: Alright, have a good day.')
+    return;
+  }
+ }
 
 client.login(process.env.SECRET);
