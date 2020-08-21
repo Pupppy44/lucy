@@ -12,7 +12,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "discord.js": "^12.3.1",
-    "ytdl-core": "^3.2.1",
+    "ytdl-core": "^3.2.2",
     "@discordjs/opus": "^0.3.2",
     "ffmpeg-static": "^4.2.7",
     "ytsr": "^0.1.21",
