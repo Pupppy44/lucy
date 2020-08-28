@@ -143,6 +143,10 @@ CommandCooldown(message.author)
       return;
       }
   }
+	
+	if (command === `${prefix}exit`) {
+		Exit(message);
+	}
   
      if (command === `${prefix}status`) {
     if (message.author.id === '306767358574198786') {
@@ -1267,6 +1271,44 @@ function Tip(message) {
   ]
   const Random = Math.floor(Math.random() * Math.floor(6));
   message.channel.send('`Did you know?` ' + Tips[Random])
+}
+
+async function Exit(message) {
+	const Embed = new Discord.MessageEmbed()
+	.setColor(0xFF0000)
+	.addField("__Oh crap, it's happening__", "**Restart the bot?** Respond with `yes` to confirm, *case sensitive*.")
+
+	const Msg = await message.channel.send(Embed);
+
+	const Filter = m => !m.author.bot;
+	try {
+
+		const Confirmation = await Msg.channel.awaitMessages( Filter, { max: 1, time: 10000, errors: ["exit"] } );
+
+		const Response = Confirmation.first();
+
+		if (Response.author.id != "306767358574198786") {
+			message.channel.send('<:youtriedtorestart:748721993603350537> **Hah,** you thought.');
+			return;
+		}
+
+		if (Response.content != "yes") {
+			message.channel.send('**Alright**, you got us wiled up for a second there.');
+			return;
+		}
+
+		const ConfirmedEmbed = new Discord.MessageEmbed()
+		.setColor('#99ff40')
+		.addField("__Alright__", "<a:loading:748718350171111464> **Restarting** the bot...")
+
+		await message.channel.send(ConfirmedEmbed);
+
+		process.exit();
+
+	} catch {
+		message.channel.send("There was an **error** trying to restart the bot, or you **didn't give me a response**, wow...");
+		return;
+	}
 }
 
 function fmtMSS(s){return(s-(s%=60))/60+(9<s?':':':0')+s}
