@@ -1274,7 +1274,7 @@ function Tip(message) {
 }
 
 async function Exit(message) {
-	const Embed = new Discord.MessageEmbed()
+	const Embed = new MessageEmbed()
 	.setColor(0xFF0000)
 	.addField("__Oh crap, it's happening__", "**Restart the bot?** Respond with `yes` to confirm, *case sensitive*.")
 
@@ -1297,7 +1297,7 @@ async function Exit(message) {
 			return;
 		}
 
-		const ConfirmedEmbed = new Discord.MessageEmbed()
+		const ConfirmedEmbed = new MessageEmbed()
 		.setColor('#99ff40')
 		.addField("__Alright__", "<a:loading:748718350171111464> **Restarting** the bot...")
 
