@@ -42,7 +42,7 @@ const IsTestingBot = true
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
-  client.user.setActivity(`?help`, { type: "LISTENING"})
+  client.user.setActivity(`?help on ${client.guilds.cache.size} servers`, { type: "LISTENING"})
 });
 
 client.on("message", async message => {
@@ -56,7 +56,7 @@ client.on("message", async message => {
   }
   const ServerQueue = Queue.get(message.guild.id);
   
-  const save = require('data-store')({ path: process.cwd() + '/prefixes.json' });
+  const save = require('data-store')({ path: __dirname + '/prefixes.json' });
   let fetch = save.get(`prefix_${message.guild.id}`)
   if (fetch === null || fetch === undefined)
     prefix = "?"
@@ -956,7 +956,7 @@ async function report(user, message) {
 
 async function setprefix(message, user) {
   try {
-  const save = require('data-store')({ path: process.cwd() + '/prefixes.json' });
+  const save = require('data-store')({ path: __dirname + '/prefixes.json' });
   const Args = message.content.split(" ")
   const perms = message.channel.permissionsFor(user);
   if (!perms.has('MANAGE_GUILD')) {
