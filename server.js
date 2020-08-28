@@ -291,8 +291,7 @@ const Song = ServerQueue.songs[0]
   
   if (command === `${prefix}update`) {
     if (message.author.id === '306767358574198786') {
-      client.user.setActivity(`${client.users.cache.size} users | ?help`, { type: "LISTENING"})
-    message.channel.send(`<a:checkmark:743818721054949477> **Updated status**\n\n**Users:** ${client.users.cache.size}\n**Guilds:** ${client.guilds.cache.size}\n**Ping:** ${Date.now() - message.createdTimestamp + " ms"}`)
+    message.channel.send(`<a:checkmark:743818721054949477> **Stats**\n\n**Users:** \`${client.users.cache.size}\`\n**Guilds:** \`${client.guilds.cache.size}\`\n**Ping:** ${Date.now() - message.createdTimestamp + " ms"}`)
   } else {
     console.log('No');
   }
@@ -338,6 +337,10 @@ return;
 CommandCooldown(message.author)
     help(message, prefix)
   }
+	
+	if (command === `${prefix}vote`) {
+		Vote(message);
+	}
   
     if (command === (`${prefix}skip`)) {
       if (PlayCooldown.has(message.author.id)) {return;}
@@ -990,10 +993,24 @@ async function help(message, prefix) {
     .setColor(16777210) 
     .addField('General Commands',`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}soundboard** - Displays the soundboard\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information`)
     .addField('DJ Commands', `**${prefix}loop** - Loops the playing song\n**${prefix}unloop** - Unloops the playing song\n**${prefix}clear** - Clears the queue\n**${prefix}shift** - Force skip the playing song\n**${prefix}remove** - Remove a specific song from the queue\n**${prefix}volume** - Configure the playing song's volume`)
-    .addField('Miscellaneous Commands', `**${prefix}invite** - Invite Lucy to your server\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}tip** - See a random tip`)
+    .addField('Miscellaneous Commands', `**${prefix}invite** - Invite Lucy to your server\n**${prefix}vote** - Vote for Lucy\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}tip** - See a random tip`)
     .setTimestamp()
     .setFooter(`${message.author.tag}`, message.author.avatarURL())
     message.channel.send(help)
+}
+
+function Vote(message) {
+	const Embed = new MessageEmbed()
+	.setColor('#fffdf7')
+	.addField(
+		"Vote for **Lucy**",
+		"\n\nVote for Lucy to **support the bot**, we'd really appreciate it.\n\n[**Bots For Discord**](https://botsfordiscord.com/bot/504430047604506625/vote)"
+	)
+	.setTimestamp()
+    	.setFooter(`${message.author.tag}`, message.author.avatarURL()) 
+
+	message.channel.send(Embed);
+	return;
 }
 
 function CheckQueueLength(guild) {
