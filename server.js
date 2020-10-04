@@ -993,7 +993,7 @@ async function help(message, prefix) {
     .setColor(16777210) 
     .addField('General Commands',`**${prefix}help** - Displays all commands\n**${prefix}play** - Plays a song\n**${prefix}soundboard** - Displays the soundboard\n**${prefix}skip** - Skips the playing song\n**${prefix}stop** - Stops the queue\n**${prefix}connect** - Joins a voice channel\n**${prefix}disconnect** - Disconnects from a voice channel\n**${prefix}queue** - Displays the current song queue\n**${prefix}songinfo** - Displays the current song information`)
     .addField('DJ Commands', `**${prefix}loop** - Loops the playing song\n**${prefix}unloop** - Unloops the playing song\n**${prefix}clear** - Clears the queue\n**${prefix}shift** - Force skip the playing song\n**${prefix}remove** - Remove a specific song from the queue\n**${prefix}volume** - Configure the playing song's volume`)
-    .addField('Miscellaneous Commands', `**${prefix}invite** - Invite Lucy to your server\n**${prefix}vote** - Vote for Lucy\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}tip** - See a random tip`)
+    .addField('Miscellaneous Commands', `**${prefix}invite** - Invite Lucy to your server\n**${prefix}vote** - Vote for Lucy :)\n**${prefix}prefix** - Configure the prefix\n**${prefix}report** - Report a bug\n**${prefix}tip** - See a random tip`)
     .setTimestamp()
     .setFooter(`${message.author.tag}`, message.author.avatarURL())
     message.channel.send(help)
@@ -1004,7 +1004,7 @@ function Vote(message) {
 	.setColor('#fffdf7')
 	.addField(
 		"Vote for **Lucy**",
-		"\n\nVote for Lucy to **support the bot**, we'd really appreciate it.\n\n[**Bots For Discord**](https://botsfordiscord.com/bot/504430047604506625/vote)"
+		"\n\nVote for Lucy to support the bot, we'd really appreciate it.\n\n[**Top.gg**](https://top.gg/bot/504430047604506625/vote)\n[**Bots For Discord**](https://botsfordiscord.com/bot/504430047604506625/vote)"
 	)
 	.setTimestamp()
     	.setFooter(`${message.author.tag}`, message.author.avatarURL()) 
