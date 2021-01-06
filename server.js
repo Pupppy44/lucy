@@ -1,4 +1,3 @@
-// 2npspsfe5-
 const { Discord, MessageEmbed, Client } = require("discord.js");
 const save = require('data-store');
 const ytdl = require("ytdl-core");
