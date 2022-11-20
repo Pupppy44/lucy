@@ -948,7 +948,7 @@ async function report(user, message) {
     return;
   }
   const ReportMsg = await String(Args.slice(1).join(" "))
-  const Webhook = new Discord.WebhookClient('506263048449818628', 'CaUwS8djvuspRrfLWlvLvDSEbw1fpYgjkBAcvQWJZgZsPG7jnPVmwpW3nA3xBUfAkxav');
+  const Webhook = new Discord.WebhookClient('506263048449818628', process.env.WEBHOOK);
   
   const ReportEmbed = new MessageEmbed()
   .setTitle(`Report from ${message.author.tag} - ${user.id}`)
